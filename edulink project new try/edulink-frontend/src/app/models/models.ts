@@ -24,7 +24,6 @@ export interface Attendance { attendanceId: number; studentId: number; classId: 
 export interface PerformanceMetric { metricId: number; studentId: number; courseId: number; score: number; date: string; status: string; }
 export interface Exam { examId: number; courseId: number; type: string; date: string; status: string; }
 export interface Grade { gradeId: number; examId: number; studentId: number; score: number; grade: string; status: string; }
-export interface ComplianceRecord { complianceId: number; entityId: number; type: string; result: string; date: string; notes: string; }
 export interface Audit { auditId: number; officerId: number; scope: string; findings: string; date: string; status: string; }
 export interface Report { reportId: number; scope: string; metrics: string; generatedDate: string; }
 export interface Notification { notificationId: number; userId: number; entityId: number; message: string; category: string; status: string; createdDate: string; }

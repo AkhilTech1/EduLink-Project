@@ -14,7 +14,7 @@ import { ToastService } from '../../services/toast.service';
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 class="section-title mb-1">Staff Management</h2>
-          <p class="text-muted small mb-0">Manage teachers, compliance officers, board officers and regulators</p>
+          <p class="text-muted small mb-0">Manage teachers, board officers</p>
         </div>
         <button class="btn-accent" (click)="showModal=true;resetForm()">+ Add Staff</button>
       </div>
@@ -38,9 +38,7 @@ import { ToastService } from '../../services/toast.service';
             <select class="form-select" [(ngModel)]="filterRole" (change)="applyFilter()">
               <option value="">All Roles</option>
               <option value="TEACHER">Teacher</option>
-              <option value="COMPLIANCE">Compliance Officer</option>
               <option value="BOARD">Board Officer</option>
-              <option value="REGULATOR">Regulator</option>
             </select>
           </div>
           <div class="col-md-3">
@@ -115,9 +113,7 @@ import { ToastService } from '../../services/toast.service';
                 <select class="form-select mt-1" [(ngModel)]="form.role">
                   <option value="">Select role</option>
                   <option value="TEACHER">Teacher</option>
-                  <option value="COMPLIANCE">Compliance Officer</option>
                   <option value="BOARD">Board Officer</option>
-                  <option value="REGULATOR">Regulator</option>
                 </select>
               </div>
               <div class="mb-3" *ngIf="editId">
@@ -190,9 +186,7 @@ export class AdminStaffComponent implements OnInit {
   buildSummary(): void {
     const roles = [
       { label: 'Teachers', role: 'TEACHER', icon: '👨🏫', color: '#0ea5e9' },
-      { label: 'Compliance', role: 'COMPLIANCE', icon: '🛡️', color: '#f59e0b' },
-      { label: 'Board Officers', role: 'BOARD', icon: '🏛️', color: '#10b981' },
-      { label: 'Regulators', role: 'REGULATOR', icon: '🔍', color: '#6366f1' },
+      { label: 'Board Officers', role: 'BOARD', icon: '🏛️', color: '#10b981' }
     ];
     this.roleSummary = roles.map(r => ({ ...r, count: this.staff.filter(s => s.role === r.role).length }));
   }
@@ -255,12 +249,12 @@ export class AdminStaffComponent implements OnInit {
   }
 
   roleBadge(role: string): string {
-    const map: any = { TEACHER: 'bg-primary', COMPLIANCE: 'bg-warning text-dark', BOARD: 'bg-info text-dark', REGULATOR: 'bg-secondary' };
+    const map: any = { TEACHER: 'bg-primary', BOARD: 'bg-info text-dark'};
     return map[role] || 'bg-secondary';
   }
 
   roleColor(role: string): string {
-    const map: any = { TEACHER: '#0ea5e9', COMPLIANCE: '#f59e0b', BOARD: '#10b981', REGULATOR: '#6366f1' };
+    const map: any = { TEACHER: '#0ea5e9', BOARD: '#10b981'};
     return map[role] || '#adb5bd';
   }
 }

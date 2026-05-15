@@ -27,7 +27,10 @@ import { ToastComponent } from '../shared/toast.component';
             <input type="email" class="form-control mt-1" [(ngModel)]="email" name="email" placeholder="you@example.com" required>
           </div>
           <div class="mb-4">
-            <label>Password</label>
+            <div class="d-flex justify-content-between align-items-center">
+              <label>Password</label>
+              <a routerLink="/forgot-password" style="color:var(--accent);font-size:0.8rem">Forgot password?</a>
+            </div>
             <input type="password" class="form-control mt-1" [(ngModel)]="password" name="password" placeholder="••••••••" required>
           </div>
 

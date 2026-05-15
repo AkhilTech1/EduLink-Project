@@ -132,7 +132,6 @@ import { AuthService } from '../../services/auth.service';
           <option value="">All Scopes</option>
           <option value="STUDENT">Student</option>
           <option value="COURSE">Course</option>
-          <option value="COMPLIANCE">Compliance</option>
           <option value="PERFORMANCE">Performance</option>
         </select>
       </div>

@@ -54,4 +54,12 @@ export class AuthService {
   approveStudent(id: number, status: string): Observable<User> {
     return this.http.put<User>(`${this.base}/students/${id}/approve`, { status });
   }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${this.base}/forgot-password`, { email });
+  }
+
+  resetPassword(email: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${this.base}/reset-password`, { email, newPassword });
+  }
 }

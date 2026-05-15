@@ -40,8 +40,23 @@ import { ToastComponent } from '../shared/toast.component';
 
                 <div class="col-md-6">
                   <label>Phone Number <span class="text-danger">*</span></label>
-                  <input class="form-control mt-1" [(ngModel)]="form.phone" name="phone" placeholder="10-digit number" required>
-                  <div class="text-danger small mt-1" *ngIf="errors.phone">{{ errors.phone }}</div>
+                  <div class="input-group mt-1">
+                    <span class="input-group-text" style="background:var(--bg-secondary);border-color:var(--border-color);color:var(--text-secondary)">+91</span>
+                    <input class="form-control" [(ngModel)]="form.phone" name="phone"
+                      placeholder="10-digit mobile number"
+                      maxlength="10"
+                      inputmode="numeric"
+                      (input)="onPhoneInput($event)"
+                      (blur)="validatePhone()"
+                      [class.is-invalid]="errors.phone"
+                      [class.is-valid]="form.phone.length===10 && !errors.phone"
+                      required>
+                  </div>
+                  <div class="d-flex justify-content-between mt-1">
+                    <div class="text-danger small" *ngIf="errors.phone">{{ errors.phone }}</div>
+                    <div class="text-success small" *ngIf="form.phone.length===10 && !errors.phone">✓ Valid phone number</div>
+                    <div class="text-muted small ms-auto">{{ form.phone.length }}/10</div>
+                  </div>
                 </div>
 
                 <div class="col-md-6">
@@ -81,20 +96,9 @@ import { ToastComponent } from '../shared/toast.component';
 
                 <div class="col-md-6">
                   <label>Grade Level <span class="text-danger">*</span></label>
-                  <select class="form-select mt-1" [(ngModel)]="form.gradeLevel" name="gradeLevel" required>
+                  <select class="form-select mt-1" [(ngModel)]="form.gradeLevel" name="gradeLevel">
                     <option value="">Select grade</option>
-                    <option value="Grade 1">Grade 1</option>
-                    <option value="Grade 2">Grade 2</option>
-                    <option value="Grade 3">Grade 3</option>
-                    <option value="Grade 4">Grade 4</option>
-                    <option value="Grade 5">Grade 5</option>
-                    <option value="Grade 6">Grade 6</option>
-                    <option value="Grade 7">Grade 7</option>
-                    <option value="Grade 8">Grade 8</option>
-                    <option value="Grade 9">Grade 9</option>
-                    <option value="Grade 10">Grade 10</option>
-                    <option value="Grade 11">Grade 11</option>
-                    <option value="Grade 12">Grade 12</option>
+                    <option *ngFor="let g of grades" [value]="g">{{ g }}</option>
                   </select>
                   <div class="text-danger small mt-1" *ngIf="errors.gradeLevel">{{ errors.gradeLevel }}</div>
                 </div>
@@ -189,6 +193,7 @@ import { ToastComponent } from '../shared/toast.component';
 })
 export class StudentRegisterComponent {
   form = { name: '', email: '', phone: '', password: '', dob: '', gender: '', address: '', gradeLevel: '' };
+  readonly grades = ['Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
   confirmPassword = '';
   loading = false;
   submitted = false;
@@ -264,20 +269,45 @@ export class StudentRegisterComponent {
     else { this.admissionFile = null; this.admissionBase64 = ''; }
   }
 
+  onPhoneInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    // strip anything that is not a digit
+    const digits = input.value.replace(/\D/g, '').slice(0, 10);
+    this.form.phone = digits;
+    input.value = digits;
+    this.validatePhone();
+  }
+
+  validatePhone(): void {
+    const p = this.form.phone;
+    if (!p) {
+      this.errors.phone = 'Phone number is required';
+    } else if (p.length !== 10) {
+      this.errors.phone = `Enter remaining ${10 - p.length} digit(s)`;
+    } else if (/^[0-5]/.test(p)) {
+      this.errors.phone = 'Mobile number must start with 6, 7, 8, or 9';
+    } else {
+      this.errors.phone = '';
+    }
+    this.cdr.detectChanges();
+  }
+
   validate(): boolean {
     this.errors = {};
-    if (!this.form.name || this.form.name.length < 2) this.errors.name = 'Full name is required (min 2 characters)';
+    if (!this.form.name || this.form.name.trim().length < 2) this.errors.name = 'Full name is required (min 2 characters)';
     if (!this.form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.form.email)) this.errors.email = 'Valid email is required';
-    if (!this.form.phone || !/^[0-9]{10}$/.test(this.form.phone)) this.errors.phone = 'Phone must be exactly 10 digits';
+    if (!this.form.phone) this.errors.phone = 'Phone number is required';
+    else if (this.form.phone.length !== 10) this.errors.phone = `Enter remaining ${10 - this.form.phone.length} digit(s)`;
+    else if (/^[0-5]/.test(this.form.phone)) this.errors.phone = 'Mobile number must start with 6, 7, 8, or 9';
     if (!this.form.password || this.form.password.length < 6) this.errors.password = 'Password must be at least 6 characters';
     if (this.form.password !== this.confirmPassword) this.errors.confirmPassword = 'Passwords do not match';
     if (!this.form.dob) this.errors.dob = 'Date of birth is required';
     if (!this.form.gender) this.errors.gender = 'Gender is required';
-    if (!this.form.address) this.errors.address = 'Address is required';
-    if (!this.form.gradeLevel) this.errors.gradeLevel = 'Grade level is required';
+    if (!this.form.address || !this.form.address.trim()) this.errors.address = 'Address is required';
+    if (!this.form.gradeLevel || !this.form.gradeLevel.trim()) this.errors.gradeLevel = 'Grade level is required';
     if (!this.idProofFile) this.errors.idProof = 'ID Proof document is required';
     if (!this.admissionFile) this.errors.admissionLetter = 'Admission Letter is required';
-    return Object.keys(this.errors).length === 0;
+    return Object.values(this.errors).every(v => !v);
   }
 
   onSubmit(): void {

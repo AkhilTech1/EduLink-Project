@@ -9,6 +9,7 @@ public class StudentDto {
 
     @Data
     public static class Request {
+        private Long userId;
         private String name;
         private String dob;
         private String gender;
@@ -23,6 +24,7 @@ public class StudentDto {
     @Builder
     public static class Response {
         private Long studentId;
+        private Long userId;
         private String name;
         private String dob;
         private String gender;
@@ -35,6 +37,7 @@ public class StudentDto {
         public static Response from(Student s) {
             return Response.builder()
                     .studentId(s.getStudentId())
+                    .userId(s.getUserId())
                     .name(s.getName())
                     .dob(s.getDob() != null ? s.getDob().toString() : null)
                     .gender(s.getGender())

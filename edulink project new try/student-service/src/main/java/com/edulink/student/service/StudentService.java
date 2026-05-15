@@ -40,6 +40,7 @@ public class StudentService {
 
     public StudentDto.Response saveStudent(StudentDto.Request request) {
         Student student = Student.builder()
+                .userId(request.getUserId())
                 .name(request.getName())
                 .dob(parseDate(request.getDob()))
                 .gender(request.getGender())
@@ -125,6 +126,50 @@ public class StudentService {
 
     public List<EnrollmentDto.Response> getAllEnrollments() {
         return enrollmentRepository.findAll().stream().map(EnrollmentDto.Response::from).toList();
+    }
+
+    // Primary lookup: by userId (identity-service userId stored at approval time)
+    // Fallback: by phone (contactInfo), then by name
+    public List<EnrollmentDto.Response> getMyEnrollments(Long userId, String phone, String name) {
+        Student student = null;
+
+        if (userId != null) {
+            student = studentRepository.findByUserId(userId).orElse(null);
+        }
+        if (student == null && phone != null && !phone.isBlank()) {
+            student = studentRepository.findByContactInfo(phone).orElse(null);
+        }
+        if (student == null && name != null && !name.isBlank()) {
+            student = studentRepository.findAll().stream()
+                    .filter(s -> s.getName() != null && s.getName().equalsIgnoreCase(name.trim()))
+                    .findFirst().orElse(null);
+        }
+        if (student == null) return List.of();
+
+        return enrollmentRepository.findByStudentId(student.getStudentId())
+                .stream().map(EnrollmentDto.Response::from).toList();
+    }
+
+    public List<EnrollmentDto.Response> autoEnrollByGrade(Long courseId, Long classId, Long teacherId, String gradeLevel) {
+        List<Student> students = studentRepository.findAll().stream()
+                .filter(s -> gradeLevel.equals(s.getGradeLevel()) && s.getStatus() == Student.Status.ACTIVE)
+                .toList();
+        List<EnrollmentDto.Response> results = new java.util.ArrayList<>();
+        for (Student s : students) {
+            boolean alreadyEnrolled = enrollmentRepository
+                    .findByStudentIdAndCourseId(s.getStudentId(), courseId).isPresent();
+            if (!alreadyEnrolled) {
+                Enrollment e = Enrollment.builder()
+                        .studentId(s.getStudentId())
+                        .courseId(courseId)
+                        .classId(classId)
+                        .teacherId(teacherId)
+                        .status(Enrollment.Status.ACTIVE)
+                        .build();
+                results.add(EnrollmentDto.Response.from(enrollmentRepository.save(e)));
+            }
+        }
+        return results;
     }
 
     private LocalDate parseDate(String date) {

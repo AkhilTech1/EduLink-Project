@@ -21,6 +21,13 @@ public class StudentController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
     public ResponseEntity<List<StudentDto.Response>> getAll() { return ResponseEntity.ok(studentService.getAllStudents()); }
+    @GetMapping("/my-enrollments")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<List<EnrollmentDto.Response>> getMyEnrollments(
+            org.springframework.security.core.Authentication authentication) {
+        Long userId = (Long) authentication.getCredentials();
+        return ResponseEntity.ok(studentService.getMyEnrollments(userId, null, null));
+    }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
@@ -77,6 +84,16 @@ public class StudentController {
         return ResponseEntity.ok(studentService.enroll(request));
     }
 
+    @PostMapping("/enroll/grade")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<EnrollmentDto.Response>> enrollByGrade(
+            @RequestParam Long courseId,
+            @RequestParam Long classId,
+            @RequestParam Long teacherId,
+            @RequestParam String gradeLevel) {
+        return ResponseEntity.ok(studentService.autoEnrollByGrade(courseId, classId, teacherId, gradeLevel));
+    }
+
     @DeleteMapping("/enroll/{enrollmentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> unenroll(@PathVariable Long enrollmentId) {
@@ -107,4 +124,6 @@ public class StudentController {
     public ResponseEntity<List<EnrollmentDto.Response>> getEnrollmentsByTeacher(@PathVariable Long teacherId) {
         return ResponseEntity.ok(studentService.getEnrollmentsByTeacher(teacherId));
     }
+
+
 }

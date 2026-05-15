@@ -27,7 +27,6 @@ import { catchError, of } from 'rxjs';
               <option value="">All Categories</option>
               <option value="EXAM">Exam</option>
               <option value="ENROLLMENT">Enrollment</option>
-              <option value="COMPLIANCE">Compliance</option>
               <option value="GENERAL">General</option>
             </select>
           </div>
@@ -113,12 +112,12 @@ export class StudentNotificationsComponent implements OnInit {
   }
 
   catIcon(cat: string): string {
-    const map: any = { ENROLLMENT: '📋', EXAM: '📝', COMPLIANCE: '🛡️', GENERAL: '📢' };
+    const map: any = { ENROLLMENT: '📋', EXAM: '📝', GENERAL: '📢' };
     return map[cat] || '🔔';
   }
 
   catColor(cat: string): string {
-    const map: any = { ENROLLMENT: '#4f46e5', EXAM: '#f59e0b', COMPLIANCE: '#10b981', GENERAL: '#0ea5e9' };
+    const map: any = { ENROLLMENT: '#4f46e5', EXAM: '#f59e0b', GENERAL: '#0ea5e9' };
     return map[cat] || '#adb5bd';
   }
 }

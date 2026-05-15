@@ -181,61 +181,57 @@ export class TeacherDashboardComponent implements OnInit {
       if (!user) return;
       if (user.name) this.name = user.name;
 
-      this.api.getClasses().pipe(catchError(() => of([]))).subscribe(allClasses => {
-        this.classes = (allClasses as any[]).filter(cl => cl.teacherId == user.userId);
-        const courseIds = [...new Set(this.classes.map(cl => cl.courseId))];
+      forkJoin({
+        enrollments: this.api.getEnrollmentsByTeacher(user.userId).pipe(catchError(() => of([]))),
+        courses: this.api.getCourses().pipe(catchError(() => of([]))),
+        classes: this.api.getClasses().pipe(catchError(() => of([]))),
+        exams: this.api.getExams().pipe(catchError(() => of([]))),
+        grades: this.api.getGrades().pipe(catchError(() => of([]))),
+        attendance: this.api.getAttendance().pipe(catchError(() => of([]))),
+      }).subscribe(d => {
+        const enrollments = d.enrollments as any[];
+        const enrolledCourseIds = [...new Set(enrollments.map((e: any) => e.courseId))];
+        const enrolledClassIds = [...new Set(enrollments.map((e: any) => e.classId))];
 
-        forkJoin({
-          courses: this.api.getCourses().pipe(catchError(() => of([]))),
-          exams: this.api.getExams().pipe(catchError(() => of([]))),
-          grades: this.api.getGrades().pipe(catchError(() => of([]))),
-          attendance: this.api.getAttendance().pipe(catchError(() => of([]))),
-          allStudents: this.api.getStudents().pipe(catchError(() => of([]))),
-        }).subscribe(d => {
-          this.courses = (d.courses as any[]).filter(c => courseIds.includes(c.courseId));
+        this.courses = (d.courses as any[]).filter(c => enrolledCourseIds.includes(c.courseId));
+        this.classes = (d.classes as any[]).filter(cl => enrolledClassIds.includes(cl.classId));
 
-          // count students by gradeLevel matching teacher's courses
-          const myGrades = [...new Set(this.courses.map(c => c.gradeLevel).filter(Boolean))];
-          const gradeStudents = (d.allStudents as any[]).filter(s => s.gradeLevel && myGrades.includes(s.gradeLevel));
-          const uniqueStudentCount = gradeStudents.length;
+        const enrolledStudentIds = [...new Set(enrollments.map((e: any) => e.studentId))];
+        const uniqueStudentCount = enrolledStudentIds.length;
 
-          this.upcomingExams = (d.exams as any[]).filter(e => e.status === 'SCHEDULED' && courseIds.includes(e.courseId))
-            .sort((a, b) => a.date > b.date ? 1 : -1);
+        this.upcomingExams = (d.exams as any[])
+          .filter(e => e.status === 'SCHEDULED' && enrolledCourseIds.includes(e.courseId))
+          .sort((a, b) => a.date > b.date ? 1 : -1);
 
-          const classIds = this.classes.map(cl => cl.classId);
-          const att = (d.attendance as any[]).filter(a => classIds.includes(a.classId));
-          this.presentCount = att.filter(a => a.status === 'PRESENT').length;
-          this.absentCount = att.filter(a => a.status === 'ABSENT').length;
-          this.totalAttendance = att.length;
-          this.attendancePct = att.length ? Math.round((this.presentCount / att.length) * 100) : 0;
+        const att = (d.attendance as any[]).filter(a => enrolledClassIds.includes(a.classId));
+        this.presentCount = att.filter(a => a.status === 'PRESENT').length;
+        this.absentCount = att.filter(a => a.status === 'ABSENT').length;
+        this.totalAttendance = att.length;
+        this.attendancePct = att.length ? Math.round((this.presentCount / att.length) * 100) : 0;
 
-          const grades = d.grades as any[];
-          this.passCount = grades.filter(g => g.status === 'PASS').length;
-          this.failCount = grades.filter(g => g.status === 'FAIL').length;
-          this.avgScore = grades.length ? Math.round(grades.reduce((a, g) => a + g.score, 0) / grades.length) : 0;
-          this.lowPerformers = grades.filter(g => g.score < 50);
+        const grades = d.grades as any[];
+        this.passCount = grades.filter(g => g.status === 'PASS').length;
+        this.failCount = grades.filter(g => g.status === 'FAIL').length;
+        this.avgScore = grades.length ? Math.round(grades.reduce((a, g) => a + g.score, 0) / grades.length) : 0;
+        this.lowPerformers = grades.filter(g => g.score < 50);
 
-          // student count per course based on grade
-          this.gradeStudentMap = {};
-          myGrades.forEach(grade => {
-            this.gradeStudentMap[grade] = (d.allStudents as any[]).filter(s => s.gradeLevel === grade).length;
-          });
-
-          this.kpis = [
-            { label: 'My Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.filter(c => c.status === 'ACTIVE').length} active`, path: '/teacher/courses' },
-            { label: 'My Students', value: uniqueStudentCount, icon: '🎒', color: '#10b981', sub: `across ${myGrades.length} grade(s)`, path: '/teacher/students' },
-            { label: 'Attendance Rate', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: `${this.presentCount} present`, path: '/teacher/attendance' },
-            { label: 'Class Avg Score', value: this.avgScore + '%', icon: '📈', color: '#f59e0b', sub: `${this.passCount} passed`, path: '/teacher/performance' },
-          ];
-          this.cdr.detectChanges();
+        // student count per course from enrollments
+        this.gradeStudentMap = {};
+        enrolledCourseIds.forEach(cid => {
+          this.gradeStudentMap[cid] = enrollments.filter((e: any) => e.courseId === cid).length;
         });
+
+        this.kpis = [
+          { label: 'My Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.filter(c => c.status === 'ACTIVE').length} active`, path: '/teacher/courses' },
+          { label: 'My Students', value: uniqueStudentCount, icon: '🎒', color: '#10b981', sub: `across ${this.courses.length} course(s)`, path: '/teacher/students' },
+          { label: 'Attendance Rate', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: `${this.presentCount} present`, path: '/teacher/attendance' },
+          { label: 'Class Avg Score', value: this.avgScore + '%', icon: '📈', color: '#f59e0b', sub: `${this.passCount} passed`, path: '/teacher/performance' },
+        ];
+        this.cdr.detectChanges();
       });
     });
   }
 
   courseName(id: number): string { return this.courses.find(c => c.courseId === id)?.title || `Course ${id}`; }
-  studentCount(courseId: number): number {
-    const course = this.courses.find(c => c.courseId === courseId);
-    return course?.gradeLevel ? (this.gradeStudentMap[course.gradeLevel] || 0) : 0;
-  }
+  studentCount(courseId: number): number { return this.gradeStudentMap[courseId] || 0; }
 }

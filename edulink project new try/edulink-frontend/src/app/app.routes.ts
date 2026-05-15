@@ -2,6 +2,8 @@ import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
 import { LoginComponent } from './components/auth/login.component';
 import { StudentRegisterComponent } from './components/auth/student-register.component';
+import { ForgotPasswordComponent } from './components/auth/forgot-password.component';
+import { ResetPasswordComponent } from './components/auth/reset-password.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { AdminDashboardComponent } from './components/admin/admin-dashboard.component';
 import { AdminUsersComponent } from './components/admin/admin-users.component';
@@ -10,7 +12,6 @@ import { AdminCoursesComponent } from './components/admin/admin-courses.componen
 import { AdminStudentsComponent } from './components/admin/admin-students.component';
 import { AdminAttendanceComponent } from './components/admin/admin-attendance.component';
 import { AdminExamsComponent } from './components/admin/admin-exams.component';
-import { AdminComplianceComponent } from './components/admin/admin-compliance.component';
 import { AdminReportsComponent } from './components/admin/admin-reports.component';
 import { AdminNotificationsComponent } from './components/admin/admin-notifications.component';
 import { AdminApprovalsComponent } from './components/admin/admin-approvals.component';
@@ -33,16 +34,14 @@ import { StudentNotificationsComponent } from './components/student/student-noti
 import { StudentReportsComponent } from './components/student/student-reports.component';
 import { StudentCalendarComponent } from './components/student/student-calendar.component';
 import { DashboardComponent } from './components/shared/dashboard.component';
-import { ComplianceRecordsComponent } from './components/compliance/compliance-records.component';
-import { ComplianceAuditsComponent } from './components/compliance/compliance-audits.component';
-import { RegulatorComplianceComponent } from './components/regulator/regulator-compliance.component';
-import { RegulatorAuditsComponent } from './components/regulator/regulator-audits.component';
 
 const guard = [authGuard];
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register/student', component: StudentRegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
   {
     path: '',
     component: LayoutComponent,
@@ -56,7 +55,6 @@ export const routes: Routes = [
       { path: 'admin/courses', component: AdminCoursesComponent },
       { path: 'admin/attendance', component: AdminAttendanceComponent },
       { path: 'admin/exams', component: AdminExamsComponent },
-      { path: 'admin/compliance', component: AdminComplianceComponent },
       { path: 'admin/reports', component: AdminReportsComponent },
       { path: 'admin/notifications', component: AdminNotificationsComponent },
       { path: 'teacher/dashboard', component: TeacherDashboardComponent },
@@ -79,12 +77,6 @@ export const routes: Routes = [
       { path: 'student/notifications', component: StudentNotificationsComponent },
       { path: 'student/reports', component: StudentReportsComponent },
       { path: 'student/calendar', component: StudentCalendarComponent },
-      { path: 'compliance/courses', component: AdminCoursesComponent },
-      { path: 'compliance/students', component: AdminStudentsComponent },
-      { path: 'compliance/records', component: ComplianceRecordsComponent },
-      { path: 'compliance/audits', component: ComplianceAuditsComponent },
-      { path: 'regulator/compliance', component: RegulatorComplianceComponent },
-      { path: 'regulator/audits', component: RegulatorAuditsComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
     ]
   },

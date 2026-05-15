@@ -109,4 +109,24 @@ public class AuthController {
     public ResponseEntity<List<AuditLogDto.Response>> getAuditLogs() {
         return ResponseEntity.ok(authService.getAuditLogs());
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody AuthDto.ForgotPasswordRequest request) {
+        try {
+            authService.verifyEmail(request.getEmail());
+            return ResponseEntity.ok(java.util.Map.of("message", "Email verified"));
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody AuthDto.ResetPasswordByEmailRequest request) {
+        try {
+            authService.resetPasswordByEmail(request.getEmail(), request.getNewPassword());
+            return ResponseEntity.ok(java.util.Map.of("message", "Password reset successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body(java.util.Map.of("message", e.getMessage()));
+        }
+    }
 }

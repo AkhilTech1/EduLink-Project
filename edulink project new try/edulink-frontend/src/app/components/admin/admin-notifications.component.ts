@@ -42,7 +42,6 @@ import { catchError, of } from 'rxjs';
               <option value="GENERAL">📢 General Announcement</option>
               <option value="EXAM">📝 Exam Schedule</option>
               <option value="ENROLLMENT">📋 Enrollment</option>
-              <option value="COMPLIANCE">🛡️ Compliance</option>
             </select>
           </div>
           <div class="col-md-6">
@@ -83,7 +82,6 @@ import { catchError, of } from 'rxjs';
               <option value="GENERAL">General</option>
               <option value="EXAM">Exam</option>
               <option value="ENROLLMENT">Enrollment</option>
-              <option value="COMPLIANCE">Compliance</option>
             </select>
           </div>
           <div class="col-md-2">
@@ -145,8 +143,7 @@ export class AdminNotificationsComponent implements OnInit {
     const cats = [
       { label: 'General', icon: '📢', cat: 'GENERAL' },
       { label: 'Exam', icon: '📝', cat: 'EXAM' },
-      { label: 'Enrollment', icon: '📋', cat: 'ENROLLMENT' },
-      { label: 'Compliance', icon: '🛡️', cat: 'COMPLIANCE' },
+      { label: 'Enrollment', icon: '📋', cat: 'ENROLLMENT' }
     ];
     this.categorySummary = cats.map(c => ({ ...c, count: this.notifications.filter(n => n.category === c.cat).length }));
   }
@@ -184,7 +181,7 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   categoryIcon(cat: string): string {
-    const map: any = { ENROLLMENT: '📋', EXAM: '📝', COMPLIANCE: '🛡️', GENERAL: '📢' };
+    const map: any = { ENROLLMENT: '📋', EXAM: '📝', GENERAL: '📢' };
     return map[cat] || '🔔';
   }
 }

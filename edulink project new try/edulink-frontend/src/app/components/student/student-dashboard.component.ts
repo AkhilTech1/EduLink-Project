@@ -74,7 +74,7 @@ import { ApiService } from '../../services/api.service';
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-lg-4">
+        <div class="col-lg-6">
           <div class="card p-4 h-100">
             <h6 class="fw-bold mb-3" style="color:var(--text-primary)">📊 Performance Summary</h6>
             <div class="text-center mb-3">
@@ -98,7 +98,7 @@ import { ApiService } from '../../services/api.service';
           </div>
         </div>
 
-        <div class="col-lg-4">
+        <div class="col-lg-6">
           <div class="card p-4 h-100">
             <h6 class="fw-bold mb-3" style="color:var(--text-primary)">📋 Attendance</h6>
             <div class="text-center mb-3">
@@ -122,22 +122,6 @@ import { ApiService } from '../../services/api.service';
               style="background:rgba(16,185,129,0.1);color:#10b981">
               ✓ Good attendance! Keep it up.
             </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4">
-          <div class="card p-4 h-100">
-            <h6 class="fw-bold mb-3" style="color:var(--text-primary)">🔔 Notifications</h6>
-            <div *ngIf="notifications.length===0" class="text-center text-muted py-3">No notifications</div>
-            <div *ngFor="let n of notifications.slice(0,5)" class="d-flex gap-2 mb-3 pb-2" style="border-bottom:1px solid var(--border-color)">
-              <span style="font-size:1.1rem">{{ catIcon(n.category) }}</span>
-              <div class="flex-grow-1">
-                <div class="small" style="color:var(--text-primary)">{{ n.message }}</div>
-                <div class="text-muted" style="font-size:0.7rem">{{ n.category }}</div>
-              </div>
-              <span class="badge align-self-start" [ngClass]="n.status==='UNREAD'?'bg-primary':'bg-secondary'" style="font-size:0.65rem">{{ n.status }}</span>
-            </div>
-            <a routerLink="/student/notifications" class="btn btn-sm w-100 mt-1" style="background:var(--bg-secondary);color:var(--accent)">View all</a>
           </div>
         </div>
       </div>
@@ -231,26 +215,21 @@ export class StudentDashboardComponent implements OnInit {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
       forkJoin({
+        enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
         courses: this.api.getCourses().pipe(catchError(() => of([]))),
         exams: this.api.getExamsByStudent(user.userId).pipe(catchError(() => of([]))),
         grades: this.api.getGrades().pipe(catchError(() => of([]))),
         notifications: this.api.getNotificationsByUser(user.userId).pipe(catchError(() => of([]))),
         assignments: this.api.getAssignments().pipe(catchError(() => of([]))),
       }).subscribe(d => {
+        console.log('Enrollments:', d.enrollments);
         const allCourses = d.courses as any[];
-
-        // get student's gradeLevel from identity user object directly
-        const myGrade = (user as any).gradeLevel || null;
-
-        // show courses matching student's grade level
-        this.courses = myGrade
-          ? allCourses.filter(c => c.gradeLevel === myGrade && c.status === 'ACTIVE')
-          : [];
+        const enrolledIds = new Set((d.enrollments as any[]).filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
+        this.courses = allCourses.filter(c => enrolledIds.has(c.courseId));
+        console.log('Enrolled course IDs:', [...enrolledIds], 'Matched courses:', this.courses);
 
         this.grades = d.grades as any[];
-        this.notifications = d.notifications as any[];
         this.upcomingExams = (d.exams as any[]).filter(e => e.status === 'SCHEDULED').sort((a: any, b: any) => a.date > b.date ? 1 : -1);
-        const pendingAssignments = (d.assignments as any[]).filter(a => !localStorage.getItem(`sub_${a.assignmentId}`)).length;
 
         this.passed = this.grades.filter(g => g.status === 'PASS').length;
         this.failed = this.grades.filter(g => g.status === 'FAIL').length;
@@ -275,7 +254,7 @@ export class StudentDashboardComponent implements OnInit {
   }
 
   catIcon(cat: string): string {
-    const map: any = { ENROLLMENT: '📋', EXAM: '📝', COMPLIANCE: '🛡️', GENERAL: '📢' };
+    const map: any = { ENROLLMENT: '📋', EXAM: '📝', GENERAL: '📢' };
     return map[cat] || '🔔';
   }
 }

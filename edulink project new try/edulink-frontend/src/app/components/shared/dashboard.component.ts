@@ -50,7 +50,7 @@ export class DashboardComponent implements OnInit {
 
   private roleLabels: Record<string, string> = {
     ADMIN: 'School Administrator', STUDENT: 'Student', TEACHER: 'Teacher',
-    COMPLIANCE: 'Compliance Officer', BOARD: 'Education Board Officer', REGULATOR: 'Regulator'
+    BOARD: 'Education Board Officer'
   };
 
   constructor(private auth: AuthService, private api: ApiService, private cdr: ChangeDetectorRef, private router: Router) {}
@@ -96,32 +96,6 @@ export class DashboardComponent implements OnInit {
         { path: '/teacher/exams', label: 'Exams', desc: 'Create assessments', icon: '📝', color: '#f59e0b' },
         { path: '/teacher/attendance', label: 'Attendance', desc: 'Mark student attendance', icon: '📋', color: '#10b981' },
       ];
-    } else if (this.role === 'COMPLIANCE') {
-      this.api.getCompliance().pipe(catchError(() => of([]))).subscribe(r => {
-        this.api.getAudits().pipe(catchError(() => of([]))).subscribe(a => {
-          this.stats = [
-            { label: 'Compliance Records', value: r.length, icon: '🛡️', color: '#4f46e5' },
-            { label: 'Audit Records', value: a.length, icon: '🔍', color: '#f59e0b' },
-          ];
-          this.cdr.detectChanges();
-        });
-      });
-      this.quickLinks = [
-        { path: '/compliance/records', label: 'Compliance Records', desc: 'Manage compliance data', icon: '🛡️', color: '#4f46e5' },
-        { path: '/compliance/audits', label: 'Audit Records', desc: 'Add and view audits', icon: '🔍', color: '#f59e0b' },
-        { path: '/compliance/courses', label: 'Courses', desc: 'View all courses', icon: '📚', color: '#0ea5e9' },
-        { path: '/compliance/students', label: 'Students', desc: 'View student details', icon: '🎒', color: '#10b981' },
-      ];
-    } else if (this.role === 'REGULATOR') {
-      this.api.getCompliance().pipe(catchError(() => of([]))).subscribe(r => {
-        this.stats = [{ label: 'Compliance Records', value: r.length, icon: '🛡️', color: '#4f46e5' }];
-        this.cdr.detectChanges();
-      });
-      this.quickLinks = [
-        { path: '/regulator/compliance', label: 'Compliance Reports', desc: 'Review compliance', icon: '🛡️', color: '#4f46e5' },
-        { path: '/regulator/audits', label: 'Audit Logs', desc: 'Monitor accreditation', icon: '🔍', color: '#f59e0b' },
-        { path: '/admin/reports', label: 'Reports', desc: 'All system reports', icon: '📊', color: '#10b981' },
-      ];
     } else if (this.role === 'BOARD') {
       this.api.getCourses().pipe(catchError(() => of([]))).subscribe(c => {
         this.api.getReports().pipe(catchError(() => of([]))).subscribe(r => {
@@ -134,8 +108,7 @@ export class DashboardComponent implements OnInit {
       });
       this.quickLinks = [
         { path: '/admin/courses', label: 'Courses', desc: 'View all courses', icon: '📚', color: '#4f46e5' },
-        { path: '/admin/reports', label: 'Reports', desc: 'View reports', icon: '📊', color: '#0ea5e9' },
-        { path: '/admin/compliance', label: 'Compliance', desc: 'Compliance records', icon: '🛡️', color: '#10b981' },
+        { path: '/admin/reports', label: 'Reports', desc: 'View reports', icon: '📊', color: '#0ea5e9' }
       ];
     }
     this.cdr.detectChanges();

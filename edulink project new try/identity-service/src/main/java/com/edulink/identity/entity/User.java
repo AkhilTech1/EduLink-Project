@@ -51,6 +51,8 @@ public class User {
 
     private String gradeLevel;
 
+    private String resetToken;
+
     public enum Role { STUDENT, TEACHER, ADMIN, BOARD, COMPLIANCE, REGULATOR }
     public enum Status { ACTIVE, INACTIVE, PENDING, REJECTED }
 }

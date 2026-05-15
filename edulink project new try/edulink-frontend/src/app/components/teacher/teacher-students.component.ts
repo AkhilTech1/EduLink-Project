@@ -14,7 +14,7 @@ import { AuthService } from '../../services/auth.service';
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
           <h2 class="section-title mb-1">My Students</h2>
-          <p class="text-muted small mb-0">{{ students.length }} students in your assigned grade(s)</p>
+          <p class="text-muted small mb-0">{{ students.length }} students assigned to your classes</p>
         </div>
         <div class="d-flex gap-2">
           <select class="form-select form-select-sm" style="width:150px" [(ngModel)]="filterGrade" (change)="applyFilter()">
@@ -131,76 +131,63 @@ export class TeacherStudentsComponent implements OnInit {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
 
-      this.api.getClasses().pipe(catchError(() => of([]))).subscribe(allClasses => {
-        const myClasses = (allClasses as any[]).filter(cl => cl.teacherId == user.userId);
-        const courseIds = [...new Set(myClasses.map((cl: any) => cl.courseId))];
-        const classIds = myClasses.map((cl: any) => cl.classId);
+      forkJoin({
+        enrollments: this.api.getEnrollmentsByTeacher(user.userId).pipe(catchError(() => of([]))),
+        courses: this.api.getCourses().pipe(catchError(() => of([]))),
+        allStudents: this.api.getStudents().pipe(catchError(() => of([]))),
+        attendance: this.api.getAttendance().pipe(catchError(() => of([]))),
+        grades: this.api.getGrades().pipe(catchError(() => of([]))),
+      }).subscribe(d => {
+        const enrollments = d.enrollments as any[];
+        const enrolledCourseIds = [...new Set(enrollments.map((e: any) => e.courseId))];
+        const enrolledClassIds = [...new Set(enrollments.map((e: any) => e.classId))];
+        const enrolledStudentIds = [...new Set(enrollments.map((e: any) => e.studentId))];
 
-        if (courseIds.length === 0) {
-          this.cdr.detectChanges();
-          return;
-        }
+        this.courses = (d.courses as any[]).filter(c => enrolledCourseIds.includes(c.courseId));
+        this.myGrades = [...new Set(this.courses.map(c => c.gradeLevel).filter(Boolean))] as string[];
 
-        forkJoin({
-          courses: this.api.getCourses().pipe(catchError(() => of([]))),
-          allStudents: this.api.getStudents().pipe(catchError(() => of([]))),
-          attendance: this.api.getAttendance().pipe(catchError(() => of([]))),
-          grades: this.api.getGrades().pipe(catchError(() => of([]))),
-        }).subscribe(d => {
-          this.courses = (d.courses as any[]).filter(c => courseIds.includes(c.courseId));
+        if (enrolledStudentIds.length === 0) { this.cdr.detectChanges(); return; }
 
-          // extract unique grade levels from teacher's courses
-          this.myGrades = [...new Set(this.courses.map(c => c.gradeLevel).filter(Boolean))] as string[];
+        const allStudents = (d.allStudents as any[]).filter(s => enrolledStudentIds.includes(s.studentId));
+        const attendance = (d.attendance as any[]).filter(a => enrolledClassIds.includes(a.classId));
+        const grades = d.grades as any[];
 
-          if (this.myGrades.length === 0) {
-            this.cdr.detectChanges();
-            return;
-          }
+        this.students = allStudents.map(s => {
+          const enrollment = enrollments.find((e: any) => e.studentId === s.studentId);
+          const course = this.courses.find(c => c.courseId === enrollment?.courseId);
 
-          // filter students from student-service by gradeLevel
-          const allStudents = d.allStudents as any[];
-          const gradeStudents = allStudents.filter(s => s.gradeLevel && this.myGrades.includes(s.gradeLevel));
+          const sAtt = attendance.filter(a => a.studentId === s.studentId);
+          const present = sAtt.filter(a => a.status === 'PRESENT').length;
+          const attPct = sAtt.length ? Math.round((present / sAtt.length) * 100) : 0;
 
-          const attendance = (d.attendance as any[]).filter(a => classIds.includes(a.classId));
-          const grades = d.grades as any[];
+          const sGrades = grades.filter(g => g.studentId === s.studentId);
+          const avgSc = sGrades.length ? Math.round(sGrades.reduce((a, g) => a + g.score, 0) / sGrades.length) : 0;
 
-          this.students = gradeStudents.map(s => {
-            const course = this.courses.find(c => c.gradeLevel === s.gradeLevel);
-
-            const sAtt = attendance.filter(a => a.studentId === s.studentId);
-            const present = sAtt.filter(a => a.status === 'PRESENT').length;
-            const attPct = sAtt.length ? Math.round((present / sAtt.length) * 100) : 0;
-
-            const sGrades = grades.filter(g => g.studentId === s.studentId);
-            const avgSc = sGrades.length ? Math.round(sGrades.reduce((a, g) => a + g.score, 0) / sGrades.length) : 0;
-
-            return {
-              studentId: s.studentId,
-              name: s.name,
-              contactInfo: s.contactInfo,
-              gradeLevel: s.gradeLevel,
-              courseName: course?.title || '—',
-              courseId: course?.courseId || null,
-              attendancePct: attPct,
-              avgScore: avgSc
-            };
-          });
-
-          // grade breakdown
-          this.gradeBreakdown = this.myGrades.map(grade => {
-            const course = this.courses.find(c => c.gradeLevel === grade);
-            const count = this.students.filter(s => s.gradeLevel === grade).length;
-            return { grade, count, courseName: course?.title || '—' };
-          }).filter(g => g.count > 0);
-
-          this.avgAttendance = this.students.length
-            ? Math.round(this.students.reduce((a, s) => a + s.attendancePct, 0) / this.students.length) : 0;
-          this.avgScore = this.students.filter(s => s.avgScore > 0).length
-            ? Math.round(this.students.filter(s => s.avgScore > 0).reduce((a, s) => a + s.avgScore, 0) / this.students.filter(s => s.avgScore > 0).length) : 0;
-
-          this.applyFilter();
-          this.cdr.detectChanges();
+          return {
+            studentId: s.studentId,
+            name: s.name,
+            contactInfo: s.contactInfo,
+            gradeLevel: s.gradeLevel,
+            courseName: course?.title || '—',
+            courseId: course?.courseId || null,
+            attendancePct: attPct,
+            avgScore: avgSc
+          };
         });
+
+        this.gradeBreakdown = this.myGrades.map(grade => {
+          const course = this.courses.find(c => c.gradeLevel === grade);
+          const count = this.students.filter(s => s.gradeLevel === grade).length;
+          return { grade, count, courseName: course?.title || '—' };
+        }).filter(g => g.count > 0);
+
+        this.avgAttendance = this.students.length
+          ? Math.round(this.students.reduce((a, s) => a + s.attendancePct, 0) / this.students.length) : 0;
+        this.avgScore = this.students.filter(s => s.avgScore > 0).length
+          ? Math.round(this.students.filter(s => s.avgScore > 0).reduce((a, s) => a + s.avgScore, 0) / this.students.filter(s => s.avgScore > 0).length) : 0;
+
+        this.applyFilter();
+        this.cdr.detectChanges();
       });
     });
   }

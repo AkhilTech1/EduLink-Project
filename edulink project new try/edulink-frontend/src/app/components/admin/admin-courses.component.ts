@@ -110,19 +110,19 @@ import { catchError, of } from 'rxjs';
               <button class="btn-close" (click)="showModal=false"></button>
             </div>
             <div class="modal-body">
-              <div class="mb-3"><label>Title</label><input class="form-control mt-1" [(ngModel)]="form.title" placeholder="Course title"></div>
-              <div class="mb-3"><label>Subject</label><input class="form-control mt-1" [(ngModel)]="form.subject" placeholder="Subject"></div>
+              <div class="mb-3"><label>Title</label><input class="form-control mt-1" name="title" [(ngModel)]="form.title" placeholder="Course title"></div>
+              <div class="mb-3"><label>Subject</label><input class="form-control mt-1" name="subject" [(ngModel)]="form.subject" placeholder="Subject"></div>
               <div class="mb-3">
                 <label>Grade Level</label>
-                <select class="form-select mt-1" [(ngModel)]="form.gradeLevel">
+                <select class="form-select mt-1" name="gradeLevel" [(ngModel)]="form.gradeLevel">
                   <option value="">Select grade</option>
                   <option *ngFor="let g of allGrades" [value]="g">{{ g }}</option>
                 </select>
               </div>
-              <div class="mb-3"><label>Credits</label><input type="number" class="form-control mt-1" [(ngModel)]="form.credits"></div>
+              <div class="mb-3"><label>Credits</label><input type="number" class="form-control mt-1" name="credits" [(ngModel)]="form.credits"></div>
               <div class="mb-3" *ngIf="role==='ADMIN' && !editId">
                 <label>Assign Teacher <span class="text-muted small">(optional)</span></label>
-                <select class="form-select mt-1" [(ngModel)]="form.teacherId">
+                <select class="form-select mt-1" name="teacherId" [(ngModel)]="form.teacherId">
                   <option value="">Select teacher</option>
                   <option *ngFor="let t of teachers" [value]="t.userId">{{ t.name }}</option>
                 </select>
@@ -148,18 +148,20 @@ import { catchError, of } from 'rxjs';
               </div>
               <div class="mb-3 p-3 rounded" style="background:var(--bg-secondary)" *ngIf="role==='ADMIN' && !editId && form.gradeLevel">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" id="autoEnroll" [(ngModel)]="form.autoEnroll">
+                  <input class="form-check-input" type="checkbox" id="autoEnroll" name="autoEnroll" [(ngModel)]="form.autoEnroll">
                   <label class="form-check-label fw-semibold" for="autoEnroll">
                     Auto-enroll all <span class="badge bg-info text-dark">{{ form.gradeLevel }}</span> students
+                    <span class="text-success small ms-1">(recommended)</span>
                   </label>
                 </div>
-                <div class="text-muted small mt-1" *ngIf="form.autoEnroll">
+                <div class="text-muted small mt-1">
                   {{ gradeStudentCount(form.gradeLevel) }} active student(s) will be enrolled automatically.
+                  <span *ngIf="!form.autoEnroll" class="text-warning d-block mt-1">⚠️ Without this, students won't see this course in their dashboard.</span>
                 </div>
               </div>
               <div class="mb-3">
                 <label>Status</label>
-                <select class="form-select mt-1" [(ngModel)]="form.status">
+                <select class="form-select mt-1" name="status" [(ngModel)]="form.status">
                   <option value="ACTIVE">ACTIVE</option><option value="INACTIVE">INACTIVE</option>
                 </select>
               </div>
@@ -243,14 +245,13 @@ export class AdminCoursesComponent implements OnInit {
   showModal = false;
   showClassModal = false;
   editId: number | null = null;
-  form: any = {};
+  form: any = { title: '', subject: '', gradeLevel: '', credits: 0, status: 'ACTIVE', teacherId: '', autoEnroll: true };
   classForm: any = {};
   role = '';
   canEdit = false;
   myName = '';
 
-  readonly allGrades = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6',
-                        'Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
+  readonly allGrades = ['Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
 
   weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   schedPicker = { startDate: '', days: [] as string[], startTime: '', endTime: '' };
@@ -298,20 +299,9 @@ export class AdminCoursesComponent implements OnInit {
       this.cdr.detectChanges();
     });
     if (this.role === 'ADMIN') {
-      this.auth.getAllStudentRegistrations().pipe(catchError(() => of([]))).subscribe(registered => {
-        this.api.getStudents().pipe(catchError(() => of([]))).subscribe(academic => {
-          this.students = (registered as any[])
-            .filter(r => r.status === 'ACTIVE' && r.gradeLevel)
-            .map(r => {
-              const match = (academic as any[]).find(a =>
-                a.contactInfo === r.phone ||
-                a.name?.toLowerCase().trim() === r.name?.toLowerCase().trim()
-              );
-              return match ? { ...r, studentId: match.studentId, gradeLevel: r.gradeLevel } : null;
-            })
-            .filter(s => s !== null);
-          this.cdr.detectChanges();
-        });
+      this.api.getStudents().pipe(catchError(() => of([]))).subscribe(academic => {
+        this.students = (academic as any[]).filter(s => s.status === 'ACTIVE' && s.gradeLevel);
+        this.cdr.detectChanges();
       });
     }
   }
@@ -345,7 +335,7 @@ export class AdminCoursesComponent implements OnInit {
 
   resetForm(): void {
     this.editId = null;
-    this.form = { title: '', subject: '', gradeLevel: '', credits: 0, status: 'ACTIVE', teacherId: '', autoEnroll: false };
+    this.form = { title: '', subject: '', gradeLevel: '', credits: 0, status: 'ACTIVE', teacherId: '', autoEnroll: true };
     this.schedPicker = { startDate: '', days: [], startTime: '', endTime: '' };
   }
 
@@ -362,68 +352,47 @@ export class AdminCoursesComponent implements OnInit {
 
   save(): void {
     const { teacherId, autoEnroll, ...courseData } = this.form;
-    if (!courseData.title || !courseData.gradeLevel) { this.toast.show('Title and Grade Level are required', 'error'); return; }
+    const title = (courseData.title || '').toString().trim();
+    const gradeLevel = (courseData.gradeLevel || '').toString().trim();
+    if (!title) { this.toast.show('Title is required', 'error'); return; }
+    if (!gradeLevel) { this.toast.show('Grade Level is required', 'error'); return; }
+    courseData.title = title;
+    courseData.gradeLevel = gradeLevel;
+    courseData.credits = +courseData.credits || 0;
     const obs = this.editId ? this.api.updateCourse(this.editId, courseData) : this.api.createCourse(courseData);
     obs.subscribe({
       next: (course: any) => {
-        this.toast.show(this.editId ? 'Course updated' : 'Course created', 'success');
+        this.showModal = false;
         if (!this.editId && teacherId) {
           const schedule = this.buildSchedule(this.schedPicker);
           this.api.createClass({ courseId: course.courseId, teacherId: +teacherId, schedule, status: 'ACTIVE' }).subscribe({
             next: (cls: any) => {
-              this.toast.show('Teacher assigned to course', 'success');
-              if (autoEnroll && course.gradeLevel) {
-                this.autoEnrollByGrade(course.courseId, cls.classId, course.gradeLevel);
+              this.toast.show('Course created and teacher assigned', 'success');
+              if (course.gradeLevel) {
+                this.autoEnrollByGrade(course.courseId, cls.classId, +teacherId, course.gradeLevel);
               }
+              this.load();
             },
-            error: () => this.toast.show('Course created but teacher assignment failed', 'error')
+            error: () => { this.toast.show('Course created but teacher assignment failed', 'error'); this.load(); }
           });
-        } else if (!this.editId && autoEnroll && course.gradeLevel) {
-          this.toast.show('Please select a teacher to enable auto-enroll', 'error');
+        } else {
+          this.toast.show(this.editId ? 'Course updated' : 'Course created', 'success');
+          this.load();
         }
-        this.showModal = false;
-        this.load();
       },
       error: () => this.toast.show('Operation failed', 'error')
     });
   }
 
-  autoEnrollByGrade(courseId: number, classId: number, grade: string): void {
-    // fetch students fresh at enrollment time — don\'t rely on pre-loaded array
-    this.auth.getAllStudentRegistrations().pipe(catchError(() => of([]))).subscribe(registered => {
-      this.api.getStudents().pipe(catchError(() => of([]))).subscribe(academic => {
-        const gradeStudents = (registered as any[])
-          .filter(r => r.status === 'ACTIVE' && r.gradeLevel === grade)
-          .map(r => {
-            const match = (academic as any[]).find(a =>
-              a.contactInfo === r.phone ||
-              a.name?.toLowerCase().trim() === r.name?.toLowerCase().trim()
-            );
-            return match ? { studentId: match.studentId } : null;
-          })
-          .filter(s => s !== null);
-
-        if (!gradeStudents.length) {
-          this.toast.show(`No active students found in ${grade}`, 'error');
-          return;
-        }
-
-        let done = 0, failed = 0;
-        gradeStudents.forEach((s: any) => {
-          this.api.enrollStudent({ studentId: s.studentId, courseId, classId }).subscribe({
-            next: () => {
-              done++;
-              if (done + failed === gradeStudents.length)
-                this.toast.show(`${done} student(s) from ${grade} enrolled`, 'success');
-            },
-            error: () => {
-              failed++;
-              if (done + failed === gradeStudents.length && done > 0)
-                this.toast.show(`${done} enrolled, ${failed} already enrolled or failed`, 'success');
-            }
-          });
-        });
-      });
+  autoEnrollByGrade(courseId: number, classId: number, teacherId: number, grade: string): void {
+    this.api.enrollByGrade(courseId, classId, teacherId, grade).subscribe({
+      next: (enrolled: any[]) => {
+        if (enrolled.length > 0)
+          this.toast.show(`${enrolled.length} student(s) from ${grade} enrolled successfully`, 'success');
+        else
+          this.toast.show(`No new students to enroll in ${grade} (already enrolled or none found)`, 'error');
+      },
+      error: () => this.toast.show(`Auto-enrollment failed for ${grade}`, 'error')
     });
   }
 
@@ -435,15 +404,25 @@ export class AdminCoursesComponent implements OnInit {
   }
 
   saveClass(): void {
+    if (!this.classForm.courseId || !this.classForm.teacherId) { this.toast.show('Course and Teacher are required', 'error'); return; }
     const schedule = this.buildSchedule(this.classPicker);
-    this.api.createClass({ ...this.classForm, schedule }).subscribe({
-      next: () => { this.toast.show('Class created', 'success'); this.showClassModal = false; this.load(); },
+    this.api.createClass({ courseId: +this.classForm.courseId, teacherId: +this.classForm.teacherId, schedule, status: this.classForm.status || 'ACTIVE' }).subscribe({
+      next: (cls: any) => {
+        this.toast.show('Class created', 'success');
+        this.showClassModal = false;
+        // auto-enroll all students of this course's grade
+        const course = this.courses.find(c => c.courseId == this.classForm.courseId);
+        if (course?.gradeLevel) {
+          this.autoEnrollByGrade(cls.courseId, cls.classId, +this.classForm.teacherId, course.gradeLevel);
+        }
+        this.load();
+      },
       error: () => this.toast.show('Failed to create class', 'error')
     });
   }
 
   updateClass(cl: any): void {
-    this.api.updateClass(cl.classId, { courseId: cl.courseId, teacherId: cl.teacherId, schedule: cl.schedule, status: cl.status }).subscribe({
+    this.api.updateClass(cl.classId, { courseId: +cl.courseId, teacherId: +cl.teacherId, schedule: cl.schedule, status: cl.status }).subscribe({
       next: () => this.toast.show('Teacher assigned', 'success'),
       error: () => this.toast.show('Failed to assign teacher', 'error')
     });

@@ -50,7 +50,7 @@ public class AuthService {
                 .userId(user.getUserId()).action("LOGIN")
                 .resource("AUTH").timestamp(LocalDateTime.now()).build());
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name(), user.getUserId());
         return new AuthDto.AuthResponse(token, user.getRole().name(), user.getEmail(), user.getName());
     }
 
@@ -148,6 +148,7 @@ public class AuthService {
     private void createStudentRecord(User user) {
         try {
             Map<String, Object> studentRequest = new HashMap<>();
+            studentRequest.put("userId", user.getUserId());
             studentRequest.put("name", user.getName());
             studentRequest.put("dob", user.getDob());
             studentRequest.put("gender", user.getGender());
@@ -208,5 +209,35 @@ public class AuthService {
 
     public List<AuditLogDto.Response> getAuditLogs() {
         return auditLogRepository.findAll().stream().map(AuditLogDto.Response::from).toList();
+    }
+
+    public String forgotPassword(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No account found with email: " + email));
+        String token = java.util.UUID.randomUUID().toString();
+        user.setResetToken(token);
+        userRepository.save(user);
+        return token;
+    }
+
+    public void resetPassword(String token, String newPassword) {
+        User user = userRepository.findByResetToken(token)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired reset token"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        userRepository.save(user);
+    }
+
+    public void verifyEmail(String email) {
+        userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No account found with this email address"));
+    }
+
+    public void resetPasswordByEmail(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("No account found with this email address"));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        userRepository.save(user);
     }
 }

@@ -38,8 +38,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 Claims claims = Jwts.parserBuilder().setSigningKey(getKey()).build()
                         .parseClaimsJws(token).getBody();
                 String role = claims.get("role", String.class);
+                Long userId = claims.get("userId", Long.class);
                 var auth = new UsernamePasswordAuthenticationToken(
-                        claims.getSubject(), null,
+                        claims.getSubject(), userId,
                         List.of(new SimpleGrantedAuthority("ROLE_" + role)));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             } catch (Exception ignored) {}

@@ -117,7 +117,7 @@ export class AdminUsersComponent implements OnInit {
   users: any[] = [];
   showModal = false;
   editId: number | null = null;
-  roles = ['TEACHER', 'COMPLIANCE', 'BOARD', 'REGULATOR'];
+  roles = ['TEACHER', 'BOARD'];
   form: any = {};
   deleteTarget: any = null;
   deleting = false;
@@ -179,7 +179,7 @@ export class AdminUsersComponent implements OnInit {
   }
 
   roleBadge(role: string): string {
-    const map: any = { ADMIN: 'bg-danger', STUDENT: 'bg-success', TEACHER: 'bg-primary', COMPLIANCE: 'bg-warning text-dark', BOARD: 'bg-info text-dark', REGULATOR: 'bg-secondary' };
+    const map: any = { ADMIN: 'bg-danger', STUDENT: 'bg-success', TEACHER: 'bg-primary', BOARD: 'bg-info text-dark'};
     return map[role] || 'bg-secondary';
   }
 

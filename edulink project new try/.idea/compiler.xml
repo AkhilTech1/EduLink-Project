@@ -15,11 +15,13 @@
         <module name="reporting-service" />
         <module name="eureka-server" />
         <module name="identity-service" />
-        <module name="compliance-service" />
         <module name="exam-service" />
         <module name="notification-service" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="compliance-service" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

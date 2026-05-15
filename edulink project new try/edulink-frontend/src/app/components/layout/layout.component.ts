@@ -4,6 +4,7 @@ import { RouterModule, RouterOutlet } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { ThemeService } from '../../services/theme.service';
+import { ApiService } from '../../services/api.service';
 import { ToastComponent } from '../shared/toast.component';
 
 @Component({
@@ -42,10 +43,62 @@ import { ToastComponent } from '../shared/toast.component';
       <div class="main-content flex-grow-1">
         <div class="topbar">
           <button class="btn btn-sm d-md-none" style="background:var(--bg-secondary);color:var(--text-primary)" (click)="sidebarOpen=!sidebarOpen">☰</button>
-          <div class="d-flex align-items-center gap-3 ms-auto">
-            <button class="btn btn-sm" style="background:var(--bg-secondary);color:var(--text-primary)" (click)="toggleTheme()">
+          <div class="d-flex align-items-center gap-2 ms-auto">
+
+            <!-- Notification Bell -->
+            <div class="position-relative">
+              <button class="btn btn-sm position-relative"
+                style="background:var(--bg-secondary);color:var(--text-primary);width:36px;height:36px;padding:0;font-size:1rem"
+                (click)="toggleNotifications($event)">
+                🔔
+                <span *ngIf="unreadCount > 0"
+                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  style="font-size:0.6rem;min-width:16px;height:16px;padding:2px 4px;line-height:1">
+                  {{ unreadCount > 9 ? '9+' : unreadCount }}
+                </span>
+              </button>
+
+              <!-- Dropdown Panel -->
+              <div *ngIf="showNotifications"
+                class="position-absolute end-0 rounded shadow"
+                style="width:320px;background:var(--bg-card);border:1px solid var(--border-color);z-index:1050;top:calc(100% + 6px)">
+                <div class="d-flex justify-content-between align-items-center px-3 py-2"
+                  style="border-bottom:1px solid var(--border-color)">
+                  <span class="fw-semibold small" style="color:var(--text-primary)">Notifications</span>
+                  <button *ngIf="unreadCount > 0" class="btn btn-sm p-0"
+                    style="color:var(--accent);font-size:0.72rem" (click)="markAllRead()">
+                    Mark all read
+                  </button>
+                </div>
+                <div style="max-height:320px;overflow-y:auto">
+                  <div *ngIf="notifications.length === 0" class="text-center text-muted py-4 small">
+                    No notifications
+                  </div>
+                  <div *ngFor="let n of notifications.slice(0,10)"
+                    class="d-flex gap-2 px-3 py-2"
+                    style="border-bottom:1px solid var(--border-color);cursor:pointer"
+                    [style.background]="n.status==='UNREAD' ? 'rgba(79,70,229,0.06)' : 'transparent'"
+                    (click)="markRead(n)">
+                    <span style="font-size:1.1rem;flex-shrink:0">{{ catIcon(n.category) }}</span>
+                    <div class="flex-grow-1">
+                      <div class="small" style="color:var(--text-primary);line-height:1.3">{{ n.message }}</div>
+                      <div class="text-muted" style="font-size:0.68rem">{{ n.category }}</div>
+                    </div>
+                    <span *ngIf="n.status==='UNREAD'"
+                      class="rounded-circle bg-primary flex-shrink-0"
+                      style="width:8px;height:8px;margin-top:4px"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Dark mode toggle -->
+            <button class="btn btn-sm"
+              style="background:var(--bg-secondary);color:var(--text-primary);width:36px;height:36px;padding:0;font-size:1rem"
+              (click)="toggleTheme()">
               {{ isDark ? '☀️' : '🌙' }}
             </button>
+
             <div class="d-flex align-items-center gap-2">
               <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
                 style="width:34px;height:34px;background:var(--accent);font-size:0.8rem">
@@ -58,7 +111,8 @@ import { ToastComponent } from '../shared/toast.component';
             </div>
           </div>
         </div>
-        <div class="page-content">
+
+        <div class="page-content" (click)="closeNotifications()">
           <router-outlet></router-outlet>
         </div>
       </div>
@@ -73,6 +127,9 @@ export class LayoutComponent implements OnInit {
   role = '';
   initials = '';
   isDark = false;
+  showNotifications = false;
+  notifications: any[] = [];
+  unreadCount = 0;
   navItems: { path: string; label: string; icon: string }[] = [];
 
   private navMap: Record<string, { path: string; label: string; icon: string }[]> = {
@@ -85,9 +142,7 @@ export class LayoutComponent implements OnInit {
       { path: '/admin/courses', label: 'Courses & Classes', icon: '📚' },
       { path: '/admin/attendance', label: 'Attendance', icon: '📋' },
       { path: '/admin/exams', label: 'Exams & Grades', icon: '📝' },
-      { path: '/admin/compliance', label: 'Compliance', icon: '🛡️' },
       { path: '/admin/reports', label: 'Reports', icon: '📊' },
-      { path: '/admin/notifications', label: 'Notifications', icon: '🔔' },
     ],
     STUDENT: [
       { path: '/student/dashboard', label: 'Dashboard', icon: '🏠' },
@@ -97,7 +152,6 @@ export class LayoutComponent implements OnInit {
       { path: '/student/exams', label: 'Exams', icon: '📝' },
       { path: '/student/grades', label: 'Grades', icon: '🏆' },
       { path: '/student/attendance', label: 'Attendance', icon: '📋' },
-      { path: '/student/notifications', label: 'Notifications', icon: '🔔' },
       { path: '/student/reports', label: 'Reports', icon: '📊' },
       { path: '/student/calendar', label: 'Calendar', icon: '📅' },
     ],
@@ -112,28 +166,19 @@ export class LayoutComponent implements OnInit {
       { path: '/teacher/attendance', label: 'Attendance', icon: '📋' },
       { path: '/teacher/performance', label: 'Performance', icon: '📈' },
     ],
-    COMPLIANCE: [
-      { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-      { path: '/compliance/courses', label: 'Courses', icon: '📚' },
-      { path: '/compliance/students', label: 'Students', icon: '🎒' },
-      { path: '/compliance/records', label: 'Compliance Records', icon: '🛡️' },
-      { path: '/compliance/audits', label: 'Audit Records', icon: '🔍' },
-    ],
     BOARD: [
       { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
       { path: '/admin/courses', label: 'Courses', icon: '📚' },
       { path: '/admin/reports', label: 'Reports', icon: '📊' },
-      { path: '/admin/compliance', label: 'Compliance', icon: '🛡️' },
-    ],
-    REGULATOR: [
-      { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
-      { path: '/regulator/compliance', label: 'Compliance Reports', icon: '🛡️' },
-      { path: '/regulator/audits', label: 'Audit Logs', icon: '🔍' },
-      { path: '/admin/reports', label: 'Reports', icon: '📊' },
-    ],
+    ]
   };
 
-  constructor(private auth: AuthService, private theme: ThemeService, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private auth: AuthService,
+    private theme: ThemeService,
+    private api: ApiService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.email = this.auth.getEmail() || '';
@@ -142,19 +187,60 @@ export class LayoutComponent implements OnInit {
     this.navItems = this.navMap[this.role] || [];
 
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
-      const name = user?.name?.trim() || this.email;
+      const name = (user as any)?.name?.trim() || this.email;
       this.displayName = name;
-      this.initials = name.split(' ').filter((w: string) => w.length > 0).map((w: string) => w[0].toUpperCase()).join('').substring(0, 2);
+      this.initials = name.split(' ')
+        .filter((w: string) => w.length > 0)
+        .map((w: string) => w[0].toUpperCase())
+        .join('')
+        .substring(0, 2);
       localStorage.setItem('name', name);
+      if ((user as any)?.userId) this.loadNotifications((user as any).userId);
       this.cdr.detectChanges();
     });
+  }
+
+  loadNotifications(userId: number): void {
+    this.api.getNotificationsByUser(userId).pipe(catchError(() => of([]))).subscribe((n: any[]) => {
+      this.notifications = n;
+      this.unreadCount = n.filter(x => x.status === 'UNREAD').length;
+      this.cdr.detectChanges();
+    });
+  }
+
+  toggleNotifications(event: Event): void {
+    event.stopPropagation();
+    this.showNotifications = !this.showNotifications;
+  }
+
+  closeNotifications(): void {
+    this.showNotifications = false;
+  }
+
+  markRead(n: any): void {
+    if (n.status === 'UNREAD') {
+      n.status = 'READ';
+      this.unreadCount = Math.max(0, this.unreadCount - 1);
+      this.cdr.detectChanges();
+    }
+  }
+
+  markAllRead(): void {
+    this.notifications.forEach(n => n.status = 'READ');
+    this.unreadCount = 0;
+    this.cdr.detectChanges();
+  }
+
+  catIcon(cat: string): string {
+    const map: any = { ENROLLMENT: '📋', EXAM: '📝', GENERAL: '📢' };
+    return map[cat] || '🔔';
   }
 
   toggleTheme(): void { this.theme.toggle(); this.isDark = this.theme.isDark(); }
   logout(): void { this.auth.logout(); }
 
   get roleBadge(): string {
-    const map: any = { ADMIN: 'bg-danger', STUDENT: 'bg-success', TEACHER: 'bg-primary', COMPLIANCE: 'bg-warning text-dark', BOARD: 'bg-info text-dark', REGULATOR: 'bg-secondary' };
+    const map: any = { ADMIN: 'bg-danger', STUDENT: 'bg-success', TEACHER: 'bg-primary', BOARD: 'bg-info text-dark' };
     return map[this.role] || 'bg-secondary';
   }
 }

@@ -35,10 +35,14 @@ export class ApiService {
   deleteStudent(id: number): Observable<any> { return this.http.delete(`/api/students/${id}`); }
 
   getAllEnrollments(): Observable<any[]> { return this.http.get<any[]>('/api/students/enrollments'); }
+  getMyEnrollments(): Observable<any[]> { return this.http.get<any[]>('/api/students/my-enrollments'); }
   getEnrollmentsByStudent(sid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/${sid}/enrollments`); }
   getEnrollmentsByCourse(cid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/enrollments/course/${cid}`); }
   getEnrollmentsByTeacher(tid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/enrollments/teacher/${tid}`); }
   enrollStudent(d: any): Observable<any> { return this.http.post<any>('/api/students/enroll', d); }
+  enrollByGrade(courseId: number, classId: number, teacherId: number, gradeLevel: string): Observable<any[]> {
+    return this.http.post<any[]>(`/api/students/enroll/grade?courseId=${courseId}&classId=${classId}&teacherId=${teacherId}&gradeLevel=${encodeURIComponent(gradeLevel)}`, {});
+  }
   unenrollStudent(enrollmentId: number): Observable<any> { return this.http.delete(`/api/students/enroll/${enrollmentId}`); }
 
   enrollStudentInExam(examId: number, studentId: number): Observable<any> { return this.http.post<any>(`/api/exams/${examId}/enroll/${studentId}`, {}); }
@@ -64,11 +68,6 @@ export class ApiService {
   getGradesByStudent(sid: number): Observable<any[]> { return this.http.get<any[]>(`/api/grades/student/${sid}`); }
   createGrade(d: any): Observable<any> { return this.http.post<any>('/api/grades', d); }
   updateGrade(id: number, d: any): Observable<any> { return this.http.put<any>(`/api/grades/${id}`, d); }
-
-  getCompliance(): Observable<any[]> { return this.http.get<any[]>('/api/compliance'); }
-  createCompliance(d: any): Observable<any> { return this.http.post<any>('/api/compliance', d); }
-  updateCompliance(id: number, d: any): Observable<any> { return this.http.put<any>(`/api/compliance/${id}`, d); }
-  deleteCompliance(id: number): Observable<any> { return this.http.delete(`/api/compliance/${id}`); }
 
   getAudits(): Observable<any[]> { return this.http.get<any[]>('/api/audits'); }
   createAudit(d: any): Observable<any> { return this.http.post<any>('/api/audits', d); }

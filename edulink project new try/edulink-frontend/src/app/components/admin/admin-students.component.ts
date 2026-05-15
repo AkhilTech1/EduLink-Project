@@ -102,7 +102,7 @@ import { catchError, of } from 'rxjs';
           <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
               <h6 class="fw-bold mb-0" style="color:var(--text-primary)">Students in {{ assignGrade }}</h6>
-              <p class="text-muted small mb-0">{{ gradeStudents.length }} student(s) found</p>
+              <p class="text-muted small mb-0">{{ gradeStudents.length }} student(s) not yet assigned to this class</p>
             </div>
             <button class="btn-accent btn-sm" (click)="confirmAssign()">
               Assign All {{ gradeStudents.length }} Students
@@ -176,6 +176,7 @@ export class AdminStudentsComponent implements OnInit {
   teacherClasses: any[] = [];
   assignGrade = '';
   gradeStudents: any[] = [];
+  enrolledStudentIds: Set<number> = new Set();
 
   get gradeOptions(): string[] {
     return [...new Set(this.allStudents.filter(s => s.studentId && s.gradeLevel).map(s => s.gradeLevel))];
@@ -249,20 +250,35 @@ export class AdminStudentsComponent implements OnInit {
   onClassChange(): void {
     this.assignGrade = '';
     this.gradeStudents = [];
-    // auto-select grade from the course's gradeLevel
+    this.enrolledStudentIds = new Set();
     const cl = this.allClasses.find(c => c.classId == this.assignClassId);
-    if (cl) {
-      const course = this.allCourses.find(c => c.courseId === cl.courseId);
-      if (course?.gradeLevel) {
-        this.assignGrade = course.gradeLevel;
-        this.onGradeChange();
+    if (!cl) return;
+    // fetch existing enrollments for this class to exclude already-assigned students
+    this.api.getEnrollmentsByCourse(cl.courseId).subscribe({
+      next: (enrollments: any[]) => {
+        this.enrolledStudentIds = new Set(
+          enrollments.filter(e => e.classId == this.assignClassId).map(e => e.studentId)
+        );
+        const course = this.allCourses.find(c => c.courseId === cl.courseId);
+        if (course?.gradeLevel) {
+          this.assignGrade = course.gradeLevel;
+          this.onGradeChange();
+        }
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        const course = this.allCourses.find(c => c.courseId === cl.courseId);
+        if (course?.gradeLevel) { this.assignGrade = course.gradeLevel; this.onGradeChange(); }
       }
-    }
+    });
   }
 
   onGradeChange(): void {
-    // only ACTIVE students (approved, have a studentId) can be assigned
-    this.gradeStudents = this.allStudents.filter(s => s.studentId && s.gradeLevel === this.assignGrade && s.registrationStatus === 'ACTIVE');
+    // exclude students already enrolled in this class
+    this.gradeStudents = this.allStudents.filter(s =>
+      s.studentId && s.gradeLevel === this.assignGrade &&
+      s.registrationStatus === 'ACTIVE' && !this.enrolledStudentIds.has(s.studentId)
+    );
   }
 
   confirmAssign(): void {
@@ -272,7 +288,7 @@ export class AdminStudentsComponent implements OnInit {
     let done = 0, failed = 0;
     const total = this.gradeStudents.length;
     this.gradeStudents.forEach(s => {
-      this.api.enrollStudent({ studentId: s.studentId, courseId: cl.courseId, classId: +this.assignClassId }).subscribe({
+      this.api.enrollStudent({ studentId: s.studentId, courseId: cl.courseId, classId: +this.assignClassId, teacherId: cl.teacherId }).subscribe({
         next: () => {
           done++;
           if (done + failed === total) {

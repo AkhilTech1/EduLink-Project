@@ -97,9 +97,8 @@ export class StudentCoursesComponent implements OnInit {
 
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
-      const myGrade = (user as any).gradeLevel || null;
-
       forkJoin({
+        enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
         courses: this.api.getCourses().pipe(catchError(() => of([]))),
         classes: this.api.getClasses().pipe(catchError(() => of([]))),
         materials: this.api.getMaterials().pipe(catchError(() => of([]))),
@@ -107,23 +106,20 @@ export class StudentCoursesComponent implements OnInit {
       }).subscribe(d => {
         this.materials = d.materials;
         const allCourses = d.courses as any[];
-        const allClasses = d.classes as any[];
-        const teachers = (d.users as any[]).filter(u => u.role === 'TEACHER');
+        const teachers = (d.users as any[]).filter((u: any) => u.role === 'TEACHER');
 
-        // show courses matching student's grade level
-        const myCourses = myGrade
-          ? allCourses.filter(c => c.gradeLevel === myGrade && c.status === 'ACTIVE')
-          : [];
+        console.log('Enrollments:', d.enrollments);
+        console.log('Courses:', allCourses);
+        console.log('Teachers:', teachers);
 
-        this.enrolledCourses = myCourses.map(course => {
-          const cls = allClasses.find(cl => cl.courseId === course.courseId);
-          const teacher = cls ? teachers.find(t => t.userId == cls.teacherId) : null;
-          return {
-            enrollment: { courseId: course.courseId },
-            course,
-            teacherName: teacher?.name || '—'
-          };
-        });
+        this.enrolledCourses = (d.enrollments as any[])
+          .filter(e => e.status?.toUpperCase() === 'ACTIVE')
+          .map(enrollment => {
+            const course = allCourses.find(c => c.courseId === enrollment.courseId);
+            const teacher = teachers.find((t: any) => t.userId == enrollment.teacherId);
+            return { enrollment, course, teacherName: teacher?.name || '—' };
+          })
+          .filter(item => !!item.course);
 
         this.cdr.detectChanges();
       });
