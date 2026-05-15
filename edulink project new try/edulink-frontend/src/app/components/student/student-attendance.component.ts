@@ -150,7 +150,7 @@ export class StudentAttendanceComponent implements OnInit {
   ngOnInit(): void {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
-      this.api.getEnrollmentsByStudent(user.userId).pipe(catchError(() => of([]))).subscribe((enrollments: any[]) => {
+      this.api.getMyEnrollments().pipe(catchError(() => of([]))).subscribe((enrollments: any[]) => {
         if (!enrollments.length) { this.cdr.detectChanges(); return; }
         const studentId = enrollments[0].studentId;
         this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe(a => {

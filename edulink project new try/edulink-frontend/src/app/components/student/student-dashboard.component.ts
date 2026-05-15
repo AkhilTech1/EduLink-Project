@@ -188,25 +188,17 @@ export class StudentDashboardComponent implements OnInit {
     const today = new Date().toISOString().split('T')[0];
     if (localStorage.getItem(`attendance_marked_${today}`)) return;
 
-    this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
-      if (!user) return;
-      // get enrollments — student can access this, and it contains studentId
-      this.api.getEnrollmentsByStudent(user.userId).pipe(catchError(() => of([]))).subscribe((enrollments: any[]) => {
-        if (!enrollments.length) return;
-        const studentId = enrollments[0].studentId;
-        const classId = enrollments[0].classId;
-        // check if already marked today using student-specific endpoint
-        this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe((records: any[]) => {
-          const exists = records.find(a => {
-            const d = a.date?.toString().substring(0, 10);
-            return d === today;
+    this.api.getMyEnrollments().pipe(catchError(() => of([]))).subscribe((enrollments: any[]) => {
+      if (!enrollments.length) return;
+      const studentId = enrollments[0].studentId;
+      const classId = enrollments[0].classId;
+      this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe((records: any[]) => {
+        const exists = records.find(a => a.date?.toString().substring(0, 10) === today);
+        if (exists) { localStorage.setItem(`attendance_marked_${today}`, '1'); return; }
+        this.api.createAttendance({ studentId, classId, date: today, status: 'PRESENT' })
+          .pipe(catchError(() => of(null))).subscribe(result => {
+            if (result) localStorage.setItem(`attendance_marked_${today}`, '1');
           });
-          if (exists) { localStorage.setItem(`attendance_marked_${today}`, '1'); return; }
-          this.api.createAttendance({ studentId, classId, date: today, status: 'PRESENT' })
-            .pipe(catchError(() => of(null))).subscribe(result => {
-              if (result) localStorage.setItem(`attendance_marked_${today}`, '1');
-            });
-        });
       });
     });
   }
@@ -222,11 +214,10 @@ export class StudentDashboardComponent implements OnInit {
         notifications: this.api.getNotificationsByUser(user.userId).pipe(catchError(() => of([]))),
         assignments: this.api.getAssignments().pipe(catchError(() => of([]))),
       }).subscribe(d => {
-        console.log('Enrollments:', d.enrollments);
         const allCourses = d.courses as any[];
-        const enrolledIds = new Set((d.enrollments as any[]).filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
+        const enrollments = d.enrollments as any[];
+        const enrolledIds = new Set(enrollments.filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
         this.courses = allCourses.filter(c => enrolledIds.has(c.courseId));
-        console.log('Enrolled course IDs:', [...enrolledIds], 'Matched courses:', this.courses);
 
         this.grades = d.grades as any[];
         this.upcomingExams = (d.exams as any[]).filter(e => e.status === 'SCHEDULED').sort((a: any, b: any) => a.date > b.date ? 1 : -1);
@@ -242,13 +233,31 @@ export class StudentDashboardComponent implements OnInit {
           grade, count, pct: this.grades.length ? Math.round((count / this.grades.length) * 100) : 0, color: colors[grade] || '#adb5bd'
         }));
 
-        this.kpis = [
-          { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
-          { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Scheduled', path: '/student/exams' },
-          { label: 'Attendance', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: this.attendancePct < 75 ? 'Below threshold' : 'Good standing', path: '/student/attendance' },
-          { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
-        ];
-        this.cdr.detectChanges();
+        // Load attendance using the correct studentId from enrollments
+        const studentId = enrollments[0]?.studentId;
+        if (studentId) {
+          this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe((att: any[]) => {
+            this.attendance = att;
+            this.present = att.filter(a => a.status === 'PRESENT').length;
+            this.absent = att.filter(a => a.status === 'ABSENT').length;
+            this.attendancePct = att.length ? Math.round((this.present / att.length) * 100) : 0;
+            this.kpis = [
+              { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
+              { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Scheduled', path: '/student/exams' },
+              { label: 'Attendance', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: this.attendancePct < 75 ? 'Below threshold' : 'Good standing', path: '/student/attendance' },
+              { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
+            ];
+            this.cdr.detectChanges();
+          });
+        } else {
+          this.kpis = [
+            { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
+            { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Scheduled', path: '/student/exams' },
+            { label: 'Attendance', value: '0%', icon: '📋', color: '#ef4444', sub: 'No records', path: '/student/attendance' },
+            { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
+          ];
+          this.cdr.detectChanges();
+        }
       });
     });
   }

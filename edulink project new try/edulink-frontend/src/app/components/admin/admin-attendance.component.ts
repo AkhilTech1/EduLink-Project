@@ -110,8 +110,20 @@ import { AuthService } from '../../services/auth.service';
               <button class="btn-close" (click)="showModal=false"></button>
             </div>
             <div class="modal-body">
-              <div class="mb-3"><label>Student ID</label><input type="number" class="form-control mt-1" [(ngModel)]="form.studentId"></div>
-              <div class="mb-3"><label>Class ID</label><input type="number" class="form-control mt-1" [(ngModel)]="form.classId"></div>
+              <div class="mb-3">
+                <label>Student</label>
+                <select class="form-select mt-1" [(ngModel)]="form.studentId" (change)="onStudentSelect()">
+                  <option value="">Select student</option>
+                  <option *ngFor="let s of myStudents" [value]="s.studentId">{{ s.name }}</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label>Class</label>
+                <select class="form-select mt-1" [(ngModel)]="form.classId">
+                  <option value="">Select class</option>
+                  <option *ngFor="let cl of myClasses" [value]="cl.classId">{{ cl.schedule || 'Class #'+cl.classId }}</option>
+                </select>
+              </div>
               <div class="mb-3"><label>Date</label><input type="date" class="form-control mt-1" [(ngModel)]="form.date"></div>
               <div class="mb-3">
                 <label>Status</label>
@@ -134,18 +146,19 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AdminAttendanceComponent implements OnInit {
   isTeacher = false;
-  allGrades = ['Grade 1','Grade 2','Grade 3','Grade 4','Grade 5','Grade 6',
-               'Grade 7','Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
+  allGrades = ['Grade 8','Grade 9','Grade 10','Grade 11','Grade 12'];
   selectedGrade = '';
   filterDate = '';
 
   attendance: any[] = [];
-  // studentId -> { name, grade } — for resolving attendance records
   studentGradeMap: Record<number, { name: string; grade: string }> = {};
-  // gradeLevel -> count — built directly from identity users, always accurate
   gradeCountMap: Record<string, number> = {};
   gradeRecords: any[] = [];
   summary = { total: 0, present: 0, absent: 0, rate: 0 };
+
+  // Teacher-specific
+  myClasses: any[] = [];
+  myStudents: any[] = [];  // { studentId, name, classId }
 
   showModal = false;
   editId: number | null = null;
@@ -155,7 +168,61 @@ export class AdminAttendanceComponent implements OnInit {
 
   ngOnInit(): void {
     this.isTeacher = this.auth.getRole() === 'TEACHER';
-    this.load();
+    if (this.isTeacher) {
+      this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
+        if (!user) { this.load(); return; }
+        forkJoin({
+          attendance: this.api.getAttendance().pipe(catchError(() => of([]))),
+          students: this.api.getStudents().pipe(catchError(() => of([]))),
+          users: this.auth.getUsers().pipe(catchError(() => of([]))),
+          enrollments: this.api.getEnrollmentsByTeacher(user.userId).pipe(catchError(() => of([]))),
+          classes: this.api.getClasses().pipe(catchError(() => of([]))),
+        }).subscribe(d => {
+          const enrollments = d.enrollments as any[];
+          const myClassIds = [...new Set(enrollments.map((e: any) => e.classId))];
+          this.myClasses = (d.classes as any[]).filter(cl => myClassIds.includes(cl.classId));
+
+          const students = d.students as any[];
+          const activeStudentUsers = (d.users as any[]).filter(u => u.role === 'STUDENT' && u.status === 'ACTIVE' && u.gradeLevel);
+
+          this.gradeCountMap = {};
+          activeStudentUsers.forEach((u: any) => {
+            this.gradeCountMap[u.gradeLevel] = (this.gradeCountMap[u.gradeLevel] || 0) + 1;
+          });
+
+          this.studentGradeMap = {};
+          students.forEach((s: any) => {
+            const u = activeStudentUsers.find((u: any) =>
+              u.name?.toLowerCase().trim() === s.name?.toLowerCase().trim() || u.phone === s.contactInfo
+            );
+            this.studentGradeMap[s.studentId] = { name: s.name, grade: u?.gradeLevel || s.gradeLevel || '' };
+          });
+
+          // Build list of students enrolled in teacher's classes
+          const myStudentIds = [...new Set(enrollments.map((e: any) => e.studentId))];
+          this.myStudents = students
+            .filter(s => myStudentIds.includes(s.studentId))
+            .map(s => {
+              const enr = enrollments.find((e: any) => e.studentId === s.studentId);
+              return { studentId: s.studentId, name: s.name, classId: enr?.classId };
+            });
+
+          this.attendance = d.attendance as any[];
+          // Restrict grade selector to teacher's grades only
+          const myGrades = [...new Set(this.myClasses.map(cl => {
+            // find course grade via enrollments
+            const enr = enrollments.find((e: any) => e.classId === cl.classId);
+            return this.studentGradeMap[enr?.studentId]?.grade || '';
+          }).filter(Boolean))] as string[];
+          if (myGrades.length) this.allGrades = myGrades;
+
+          if (this.selectedGrade) this.onGradeChange();
+          this.cdr.detectChanges();
+        });
+      });
+    } else {
+      this.load();
+    }
   }
 
   load(): void {
@@ -167,18 +234,15 @@ export class AdminAttendanceComponent implements OnInit {
       this.attendance = d.attendance as any[];
       const students = d.students as any[];
 
-      // ACTIVE students from identity — these have gradeLevel
       const activeStudentUsers = (d.users as any[]).filter(u =>
         u.role === 'STUDENT' && u.status === 'ACTIVE' && u.gradeLevel
       );
 
-      // Build grade count directly from identity users — no matching needed, always correct
       this.gradeCountMap = {};
       activeStudentUsers.forEach((u: any) => {
         this.gradeCountMap[u.gradeLevel] = (this.gradeCountMap[u.gradeLevel] || 0) + 1;
       });
 
-      // Build studentId -> { name, grade } for resolving attendance records
       this.studentGradeMap = {};
       students.forEach((s: any) => {
         const user = activeStudentUsers.find((u: any) =>
@@ -236,6 +300,11 @@ export class AdminAttendanceComponent implements OnInit {
   }
 
   resetForm(): void { this.editId = null; this.form = { studentId: '', classId: '', date: '', status: 'PRESENT' }; }
+
+  onStudentSelect(): void {
+    const s = this.myStudents.find(x => x.studentId == this.form.studentId);
+    if (s?.classId) this.form.classId = s.classId;
+  }
 
   save(): void {
     const obs = this.editId ? this.api.updateAttendance(this.editId, this.form) : this.api.createAttendance(this.form);
