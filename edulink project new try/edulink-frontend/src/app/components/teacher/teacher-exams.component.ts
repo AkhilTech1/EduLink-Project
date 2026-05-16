@@ -33,7 +33,8 @@ import { ToastService } from '../../services/toast.service';
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <div>
                   <div class="fw-bold" style="color:var(--text-primary)">{{ q.title }}</div>
-                  <div class="text-muted small">{{ q.date }}</div>
+                  <div class="text-muted small">Exam: {{ q.date }}</div>
+                  <div class="text-muted small" *ngIf="q.deadline">Deadline: {{ q.deadline }}</div>
                 </div>
                 <span class="badge bg-info text-dark">{{ q.gradeLevel }}</span>
               </div>
@@ -107,11 +108,11 @@ import { ToastService } from '../../services/toast.service';
         </div>
 
         <div class="row g-3 mb-4 p-3 rounded" style="background:var(--bg-secondary)">
-          <div class="col-md-4">
+          <div class="col-md-3">
             <label class="form-label small fw-semibold">Quiz Title *</label>
             <input class="form-control" [(ngModel)]="builder.title" placeholder="e.g. Chapter 1 Quiz">
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label class="form-label small fw-semibold">Grade *</label>
             <select class="form-select" [(ngModel)]="builder.gradeLevel">
               <option value="">Select grade</option>
@@ -125,9 +126,13 @@ import { ToastService } from '../../services/toast.service';
               <option *ngFor="let c of myCourses" [value]="c.courseId">{{ c.title }}</option>
             </select>
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label class="form-label small fw-semibold">Exam Date *</label>
             <input type="date" class="form-control" [(ngModel)]="builder.date">
+          </div>
+          <div class="col-md-3">
+            <label class="form-label small fw-semibold">Deadline Date *</label>
+            <input type="date" class="form-control" [(ngModel)]="builder.deadline">
           </div>
         </div>
 
@@ -213,6 +218,7 @@ export class TeacherExamsComponent implements OnInit {
     this.builder = {
       title: '', gradeLevel: this.myGrades[0] || '', courseId: this.myCourses[0]?.courseId || '',
       date: new Date().toISOString().split('T')[0],
+      deadline: '',
       questions: [this.newQuestion()]
     };
     this.showBuilder = true;
@@ -225,8 +231,11 @@ export class TeacherExamsComponent implements OnInit {
   trackByIndex(i: number): number { return i; }
 
   saveQuiz(): void {
-    if (!this.builder.title || !this.builder.gradeLevel || !this.builder.date) {
-      this.toast.show('Please fill Title, Grade and Date', 'error'); return;
+    if (!this.builder.title || !this.builder.gradeLevel || !this.builder.date || !this.builder.deadline) {
+      this.toast.show('Please fill Title, Grade, Exam Date and Deadline', 'error'); return;
+    }
+    if (this.builder.deadline < this.builder.date) {
+      this.toast.show('Deadline must be on or after the exam date', 'error'); return;
     }
     if (this.builder.questions.some((q: any) => !q.text || q.options.some((o: string) => !o.trim()))) {
       this.toast.show('Please fill all question texts and options', 'error'); return;
@@ -237,6 +246,7 @@ export class TeacherExamsComponent implements OnInit {
       gradeLevel: this.builder.gradeLevel,
       type: 'QUIZ',
       date: this.builder.date,
+      deadline: this.builder.deadline,
       status: 'SCHEDULED',
       questions: JSON.stringify({ title: this.builder.title, items: this.builder.questions })
     };

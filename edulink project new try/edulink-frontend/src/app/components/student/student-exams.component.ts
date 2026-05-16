@@ -232,14 +232,15 @@ import { ToastService } from '../../services/toast.service';
   `
 })
 export class StudentExamsComponent implements OnInit {
-  myQuizzes: any[] = [];   // parsed quizzes from DB exams
-  myGrades: any[] = [];    // grades from DB for this student
+  myQuizzes: any[] = [];
+  myGrades: any[] = [];
   activeQuiz: any = null;
   quizResult: any = null;
   answers: Record<number, number> = {};
   currentQ = 0;
   myGrade = '';
-  studentId = 0;
+  studentId = 0;   // real student-service studentId
+  userId = 0;      // identity-service userId
   avgScore = 0;
   loading = true;
   submitting = false;
@@ -250,8 +251,21 @@ export class StudentExamsComponent implements OnInit {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
       this.myGrade = (user as any).gradeLevel || '';
-      this.studentId = user.userId;
-      this.loadData();
+      this.userId = user.userId;
+      // Primary: GET /api/students/me (STUDENT-accessible, returns studentId directly)
+      this.api.getMyStudent().pipe(catchError(() => of(null))).subscribe((student: any) => {
+        if (student?.studentId) {
+          this.studentId = student.studentId;
+          this.loadData();
+        } else {
+          // Fallback: derive studentId from enrollments
+          this.api.getMyEnrollments().pipe(catchError(() => of([]))).subscribe((enrollments: any[]) => {
+            this.studentId = enrollments.length > 0 && enrollments[0].studentId
+              ? enrollments[0].studentId : this.userId;
+            this.loadData();
+          });
+        }
+      });
     });
   }
 
@@ -325,31 +339,40 @@ export class StudentExamsComponent implements OnInit {
     const grade = percentage >= 90 ? 'A' : percentage >= 80 ? 'B' : percentage >= 70 ? 'C' : percentage >= 60 ? 'D' : 'F';
 
     this.submitting = true;
-    this.api.createGrade({
+
+    // Step 1: save submission record
+    this.api.submitQuiz({
       examId: this.activeQuiz.examId,
       studentId: this.studentId,
-      score,
-      grade,
-      status: 'PUBLISHED'
-    }).subscribe({
-      next: (saved: any) => {
-        this.myGrades.push(saved);
-        this.quizResult = {
-          title: this.activeQuiz.title,
-          score, total: maxScore, pct: percentage, grade,
-          answers: { ...this.answers },
-          questions: this.activeQuiz.questions
-        };
-        this.activeQuiz = null;
-        this.submitting = false;
-        this.calcStats();
-        this.cdr.detectChanges();
-      },
-      error: () => {
-        this.toast.show('Failed to save result. Please try again.', 'error');
-        this.submitting = false;
-        this.cdr.detectChanges();
-      }
+      answers: JSON.stringify(this.answers)
+    }).pipe(catchError(() => of(null))).subscribe(() => {
+      // Step 2: save grade (submission saved regardless of grade save outcome)
+      this.api.createGrade({
+        examId: this.activeQuiz.examId,
+        studentId: this.studentId,
+        score,
+        grade,
+        status: 'PUBLISHED'
+      }).subscribe({
+        next: (saved: any) => {
+          this.myGrades.push(saved);
+          this.quizResult = {
+            title: this.activeQuiz.title,
+            score, total: maxScore, pct: percentage, grade,
+            answers: { ...this.answers },
+            questions: this.activeQuiz.questions
+          };
+          this.activeQuiz = null;
+          this.submitting = false;
+          this.calcStats();
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.toast.show('Failed to save result. Please try again.', 'error');
+          this.submitting = false;
+          this.cdr.detectChanges();
+        }
+      });
     });
   }
 

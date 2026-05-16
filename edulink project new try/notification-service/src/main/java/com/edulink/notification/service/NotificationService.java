@@ -33,6 +33,7 @@ public class NotificationService {
                 .category(Notification.Category.valueOf(request.getCategory()))
                 .status(Notification.Status.valueOf(request.getStatus()))
                 .createdDate(LocalDateTime.now())
+                .isRead(false)
                 .build();
         return NotificationDto.Response.from(notificationRepository.save(n));
     }
@@ -56,5 +57,17 @@ public class NotificationService {
 
     public List<NotificationDto.Response> getByUser(Long userId) {
         return notificationRepository.findByUserId(userId).stream().map(NotificationDto.Response::from).toList();
+    }
+
+    public NotificationDto.Response markAsRead(Long id) {
+        Notification n = notificationRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Notification not found with id: " + id));
+        n.setRead(true);
+        return NotificationDto.Response.from(notificationRepository.save(n));
+    }
+
+    public List<NotificationDto.Response> getUnreadByUser(Long userId) {
+        return notificationRepository.findByUserIdAndIsRead(userId, false)
+                .stream().map(NotificationDto.Response::from).toList();
     }
 }

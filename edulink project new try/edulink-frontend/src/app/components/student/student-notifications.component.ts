@@ -27,14 +27,14 @@ import { catchError, of } from 'rxjs';
               <option value="">All Categories</option>
               <option value="EXAM">Exam</option>
               <option value="ENROLLMENT">Enrollment</option>
-              <option value="GENERAL">General</option>
+              <option value="COURSE">Course</option>
             </select>
           </div>
           <div class="col-md-2">
-            <select class="form-select" [(ngModel)]="filterStatus" (change)="applyFilter()">
+            <select class="form-select" [(ngModel)]="filterRead" (change)="applyFilter()">
               <option value="">All</option>
-              <option value="UNREAD">Unread</option>
-              <option value="READ">Read</option>
+              <option value="unread">Unread</option>
+              <option value="read">Read</option>
             </select>
           </div>
         </div>
@@ -42,7 +42,7 @@ import { catchError, of } from 'rxjs';
 
       <div class="d-flex flex-column gap-3">
         <div *ngFor="let n of filtered" class="card p-3"
-          [style.border-left]="n.status==='UNREAD'?'3px solid var(--accent)':'3px solid transparent'">
+          [style.border-left]="!n.isRead ? '3px solid var(--accent)' : '3px solid transparent'">
           <div class="d-flex align-items-start gap-3">
             <div class="rounded-circle d-flex align-items-center justify-content-center"
               style="width:40px;height:40px;min-width:40px;font-size:1.2rem"
@@ -52,7 +52,9 @@ import { catchError, of } from 'rxjs';
             <div class="flex-grow-1">
               <div class="d-flex justify-content-between align-items-start">
                 <div class="fw-semibold" style="color:var(--text-primary)">{{ n.message }}</div>
-                <span class="badge ms-2" [ngClass]="n.status==='UNREAD'?'bg-primary':'bg-secondary'" style="white-space:nowrap">{{ n.status }}</span>
+                <span class="badge ms-2" [ngClass]="!n.isRead ? 'bg-primary' : 'bg-secondary'" style="white-space:nowrap">
+                  {{ !n.isRead ? 'UNREAD' : 'READ' }}
+                </span>
               </div>
               <div class="d-flex gap-3 mt-1">
                 <span class="text-muted small">{{ catIcon(n.category) }} {{ n.category }}</span>
@@ -60,7 +62,7 @@ import { catchError, of } from 'rxjs';
               </div>
             </div>
           </div>
-          <div class="d-flex justify-content-end mt-2" *ngIf="n.status==='UNREAD'">
+          <div class="d-flex justify-content-end mt-2" *ngIf="!n.isRead">
             <button class="btn btn-sm btn-outline-secondary" (click)="markRead(n)">Mark as read</button>
           </div>
         </div>
@@ -74,50 +76,75 @@ export class StudentNotificationsComponent implements OnInit {
   filtered: any[] = [];
   search = '';
   filterCat = '';
-  filterStatus = '';
+  filterRead = '';
   unreadCount = 0;
+  private userId = 0;
 
   constructor(private api: ApiService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    this.api.getNotifications().pipe(catchError(() => of([]))).subscribe(n => {
-      this.notifications = n;
-      this.unreadCount = n.filter((x: any) => x.status === 'UNREAD').length;
-      this.applyFilter();
-      this.cdr.detectChanges();
+    this.auth.getMe().pipe(catchError(() => of(null))).subscribe((user: any) => {
+      if (!user) return;
+      this.userId = user.userId;
+      this.api.getNotificationsByUser(this.userId)
+        .pipe(catchError(() => of([])))
+        .subscribe((data: any[]) => {
+          this.notifications = data;
+          this.unreadCount = data.filter((x: any) => !x.isRead).length;
+          this.applyFilter();
+          this.cdr.detectChanges();
+        });
     });
   }
 
   applyFilter(): void {
-    this.filtered = this.notifications.filter(n => {
+    this.filtered = this.notifications.filter((n: any) => {
       const ms = !this.search || n.message?.toLowerCase().includes(this.search.toLowerCase());
       const mc = !this.filterCat || n.category === this.filterCat;
-      const mst = !this.filterStatus || n.status === this.filterStatus;
-      return ms && mc && mst;
+      const mr = !this.filterRead
+        || (this.filterRead === 'unread' && !n.isRead)
+        || (this.filterRead === 'read' && n.isRead);
+      return ms && mc && mr;
     });
   }
 
   markRead(n: any): void {
-    n.status = 'READ';
-    this.unreadCount = this.notifications.filter(x => x.status === 'UNREAD').length;
-    this.applyFilter();
-    this.cdr.detectChanges();
+    this.api.markNotificationRead(n.notificationId)
+      .pipe(catchError(() => of(null)))
+      .subscribe(() => {
+        n.isRead = true;
+        this.unreadCount = this.notifications.filter((x: any) => !x.isRead).length;
+        this.applyFilter();
+        this.cdr.detectChanges();
+      });
   }
 
   markAllRead(): void {
-    this.notifications.forEach(n => n.status = 'READ');
-    this.unreadCount = 0;
-    this.applyFilter();
-    this.cdr.detectChanges();
+    const unread = this.notifications.filter((n: any) => !n.isRead);
+    let done = 0;
+    if (unread.length === 0) return;
+    unread.forEach((n: any) => {
+      this.api.markNotificationRead(n.notificationId)
+        .pipe(catchError(() => of(null)))
+        .subscribe(() => {
+          n.isRead = true;
+          done++;
+          if (done === unread.length) {
+            this.unreadCount = 0;
+            this.applyFilter();
+            this.cdr.detectChanges();
+          }
+        });
+    });
   }
 
   catIcon(cat: string): string {
-    const map: any = { ENROLLMENT: '📋', EXAM: '📝', GENERAL: '📢' };
+    const map: Record<string, string> = { ENROLLMENT: '📋', EXAM: '📝', COURSE: '📚', COMPLIANCE: '📊' };
     return map[cat] || '🔔';
   }
 
   catColor(cat: string): string {
-    const map: any = { ENROLLMENT: '#4f46e5', EXAM: '#f59e0b', GENERAL: '#0ea5e9' };
+    const map: Record<string, string> = { ENROLLMENT: '#4f46e5', EXAM: '#f59e0b', COURSE: '#10b981', COMPLIANCE: '#0ea5e9' };
     return map[cat] || '#adb5bd';
   }
 }

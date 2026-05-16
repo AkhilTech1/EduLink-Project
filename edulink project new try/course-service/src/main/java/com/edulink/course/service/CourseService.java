@@ -1,5 +1,6 @@
 package com.edulink.course.service;
 
+import com.edulink.course.client.NotificationClient;
 import com.edulink.course.dto.ClassDto;
 import com.edulink.course.dto.CourseDto;
 import com.edulink.course.entity.ClassEntity;
@@ -18,6 +19,7 @@ public class CourseService {
 
     private final CourseRepository courseRepository;
     private final ClassRepository classRepository;
+    private final NotificationClient notificationClient;
 
     public List<CourseDto.Response> getAllCourses() {
         return courseRepository.findAll().stream().map(CourseDto.Response::from).toList();
@@ -72,7 +74,12 @@ public class CourseService {
                 .schedule(request.getSchedule())
                 .status(ClassEntity.Status.valueOf(request.getStatus()))
                 .build();
-        return ClassDto.Response.from(classRepository.save(c));
+        ClassDto.Response saved = ClassDto.Response.from(classRepository.save(c));
+        if (request.getTeacherId() != null) {
+            notificationClient.send(request.getTeacherId(), saved.getClassId(),
+                "You have been assigned to a new class (ID: " + saved.getClassId() + ").", "COURSE");
+        }
+        return saved;
     }
 
     public ClassDto.Response updateClass(Long id, ClassDto.Request request) {

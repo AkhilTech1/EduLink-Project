@@ -1,5 +1,6 @@
 package com.edulink.student.service;
 
+import com.edulink.student.client.NotificationClient;
 import com.edulink.student.dto.EnrollmentDto;
 import com.edulink.student.dto.StudentDocumentDto;
 import com.edulink.student.dto.StudentDto;
@@ -23,6 +24,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentDocumentRepository documentRepository;
     private final EnrollmentRepository enrollmentRepository;
+    private final NotificationClient notificationClient;
 
     public List<StudentDto.Response> getAllStudents() {
         return studentRepository.findAll().stream().map(StudentDto.Response::from).toList();
@@ -31,6 +33,11 @@ public class StudentService {
     public StudentDto.Response getStudent(Long id) {
         return StudentDto.Response.from(studentRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Student not found with id: " + id)));
+    }
+
+    public StudentDto.Response getStudentByUserId(Long userId) {
+        return StudentDto.Response.from(studentRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Student not found for userId: " + userId)));
     }
 
     public List<StudentDto.Response> findByNameAndContact(String name, String contactInfo) {
@@ -103,7 +110,12 @@ public class StudentService {
                 .teacherId(request.getTeacherId())
                 .status(Enrollment.Status.ACTIVE)
                 .build();
-        return EnrollmentDto.Response.from(enrollmentRepository.save(e));
+        EnrollmentDto.Response saved = EnrollmentDto.Response.from(enrollmentRepository.save(e));
+        Student student = studentRepository.findById(request.getStudentId()).orElse(null);
+        Long userId = student != null ? student.getUserId() : request.getStudentId();
+        notificationClient.send(userId, request.getCourseId(),
+            "You have been enrolled in a new course (ID: " + request.getCourseId() + ").", "ENROLLMENT");
+        return saved;
     }
 
     public void unenroll(Long enrollmentId) {
@@ -167,6 +179,9 @@ public class StudentService {
                         .status(Enrollment.Status.ACTIVE)
                         .build();
                 results.add(EnrollmentDto.Response.from(enrollmentRepository.save(e)));
+                Long userId = s.getUserId() != null ? s.getUserId() : s.getStudentId();
+                notificationClient.send(userId, courseId,
+                    "You have been enrolled in a new course (ID: " + courseId + ").", "ENROLLMENT");
             }
         }
         return results;

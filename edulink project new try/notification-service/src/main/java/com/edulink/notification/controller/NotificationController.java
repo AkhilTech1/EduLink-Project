@@ -46,4 +46,22 @@ public class NotificationController {
     public ResponseEntity<List<NotificationDto.Response>> getByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(notificationService.getByUser(userId));
     }
+
+    @GetMapping("/user/{userId}/unread")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
+    public ResponseEntity<List<NotificationDto.Response>> getUnreadByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(notificationService.getUnreadByUser(userId));
+    }
+
+    @GetMapping("/user/{userId}/unread/count")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
+    public ResponseEntity<Long> getUnreadCount(@PathVariable Long userId) {
+        return ResponseEntity.ok((long) notificationService.getUnreadByUser(userId).size());
+    }
+
+    @PatchMapping("/{id}/read")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
+    public ResponseEntity<NotificationDto.Response> markAsRead(@PathVariable Long id) {
+        return ResponseEntity.ok(notificationService.markAsRead(id));
+    }
 }

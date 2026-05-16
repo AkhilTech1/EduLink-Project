@@ -29,6 +29,16 @@ public class StudentController {
         return ResponseEntity.ok(studentService.getMyEnrollments(userId, null, null));
     }
 
+    @GetMapping("/me")
+    @PreAuthorize("hasRole('STUDENT')")
+    public ResponseEntity<StudentDto.Response> getMe(
+            org.springframework.security.core.Authentication authentication) {
+        String subject = authentication.getName();
+        Long userId;
+        try { userId = Long.parseLong(subject); } catch (Exception e) { userId = null; }
+        return ResponseEntity.ok(studentService.getStudentByUserId(userId));
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
     public ResponseEntity<StudentDto.Response> getById(@PathVariable Long id) { return ResponseEntity.ok(studentService.getStudent(id)); }

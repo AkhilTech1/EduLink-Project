@@ -26,6 +26,7 @@ public class NotificationDto {
         private String category;
         private String status;
         private LocalDateTime createdDate;
+        private boolean isRead;
 
         public static Response from(Notification n) {
             return Response.builder()
@@ -36,6 +37,7 @@ public class NotificationDto {
                     .category(n.getCategory().name())
                     .status(n.getStatus().name())
                     .createdDate(n.getCreatedDate())
+                    .isRead(n.isRead())
                     .build();
         }
     }

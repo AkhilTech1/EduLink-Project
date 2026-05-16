@@ -77,14 +77,14 @@ import { ToastComponent } from '../shared/toast.component';
                   <div *ngFor="let n of notifications.slice(0,10)"
                     class="d-flex gap-2 px-3 py-2"
                     style="border-bottom:1px solid var(--border-color);cursor:pointer"
-                    [style.background]="n.status==='UNREAD' ? 'rgba(79,70,229,0.06)' : 'transparent'"
+                    [style.background]="!n.isRead ? 'rgba(79,70,229,0.06)' : 'transparent'"
                     (click)="markRead(n)">
                     <span style="font-size:1.1rem;flex-shrink:0">{{ catIcon(n.category) }}</span>
                     <div class="flex-grow-1">
                       <div class="small" style="color:var(--text-primary);line-height:1.3">{{ n.message }}</div>
                       <div class="text-muted" style="font-size:0.68rem">{{ n.category }}</div>
                     </div>
-                    <span *ngIf="n.status==='UNREAD'"
+                    <span *ngIf="!n.isRead"
                       class="rounded-circle bg-primary flex-shrink-0"
                       style="width:8px;height:8px;margin-top:4px"></span>
                   </div>
@@ -150,7 +150,6 @@ export class LayoutComponent implements OnInit {
       { path: '/student/courses', label: 'My Courses', icon: '📚' },
       { path: '/student/learning', label: 'Learning', icon: '📖' },
       { path: '/student/exams', label: 'Exams', icon: '📝' },
-      { path: '/student/grades', label: 'Grades', icon: '🏆' },
       { path: '/student/attendance', label: 'Attendance', icon: '📋' },
       { path: '/student/reports', label: 'Reports', icon: '📊' },
       { path: '/student/calendar', label: 'Calendar', icon: '📅' },
@@ -203,7 +202,7 @@ export class LayoutComponent implements OnInit {
   loadNotifications(userId: number): void {
     this.api.getNotificationsByUser(userId).pipe(catchError(() => of([]))).subscribe((n: any[]) => {
       this.notifications = n;
-      this.unreadCount = n.filter(x => x.status === 'UNREAD').length;
+      this.unreadCount = n.filter((x: any) => !x.isRead).length;
       this.cdr.detectChanges();
     });
   }
@@ -218,15 +217,22 @@ export class LayoutComponent implements OnInit {
   }
 
   markRead(n: any): void {
-    if (n.status === 'UNREAD') {
-      n.status = 'READ';
-      this.unreadCount = Math.max(0, this.unreadCount - 1);
-      this.cdr.detectChanges();
+    if (!n.isRead) {
+      this.api.markNotificationRead(n.notificationId).pipe(catchError(() => of(null))).subscribe(() => {
+        n.isRead = true;
+        this.unreadCount = Math.max(0, this.unreadCount - 1);
+        this.cdr.detectChanges();
+      });
     }
   }
 
   markAllRead(): void {
-    this.notifications.forEach(n => n.status = 'READ');
+    const unread = this.notifications.filter((n: any) => !n.isRead);
+    unread.forEach((n: any) => {
+      this.api.markNotificationRead(n.notificationId).pipe(catchError(() => of(null))).subscribe(() => {
+        n.isRead = true;
+      });
+    });
     this.unreadCount = 0;
     this.cdr.detectChanges();
   }

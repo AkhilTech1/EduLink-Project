@@ -26,7 +26,6 @@ import { StudentDashboardComponent } from './components/student/student-dashboar
 import { StudentProfileComponent } from './components/student/student-profile.component';
 import { StudentCoursesComponent } from './components/student/student-courses.component';
 import { StudentLearningComponent } from './components/student/student-learning.component';
-import { StudentGradesComponent } from './components/student/student-grades.component';
 import { StudentPerformanceComponent } from './components/student/student-performance.component';
 import { StudentAttendanceComponent } from './components/student/student-attendance.component';
 import { StudentExamsComponent } from './components/student/student-exams.component';
@@ -71,7 +70,6 @@ export const routes: Routes = [
       { path: 'student/courses', component: StudentCoursesComponent },
       { path: 'student/learning', component: StudentLearningComponent },
       { path: 'student/exams', component: StudentExamsComponent },
-      { path: 'student/grades', component: StudentGradesComponent },
       { path: 'student/attendance', component: StudentAttendanceComponent },
       { path: 'student/performance', component: StudentPerformanceComponent },
       { path: 'student/notifications', component: StudentNotificationsComponent },

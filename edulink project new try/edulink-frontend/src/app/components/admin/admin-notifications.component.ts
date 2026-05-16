@@ -104,7 +104,7 @@ import { catchError, of } from 'rxjs';
                 <div class="text-muted" style="font-size:0.72rem">{{ n.category }} • User {{ n.userId }}</div>
                 <div class="text-muted" style="font-size:0.72rem">{{ n.createdDate | date:'medium' }}</div>
               </div>
-              <span class="badge" [ngClass]="n.status==='UNREAD'?'bg-primary':'bg-secondary'">{{ n.status }}</span>
+              <span class="badge" [ngClass]="!n.isRead ? 'bg-primary' : 'bg-secondary'">{{ !n.isRead ? 'UNREAD' : 'READ' }}</span>
             </div>
           </div>
         </div>
@@ -130,13 +130,13 @@ export class AdminNotificationsComponent implements OnInit {
   ngOnInit(): void { this.load(); }
 
   load(): void {
-    this.api.getNotifications().subscribe(n => {
+    this.api.getNotifications().pipe(catchError(() => of([]))).subscribe((n: any[]) => {
       this.notifications = n;
       this.buildSummary();
       this.applyFilter();
       this.cdr.detectChanges();
     });
-    this.auth.getUsers().pipe(catchError(() => of([]))).subscribe(u => { this.users = u; this.cdr.detectChanges(); });
+    this.auth.getUsers().pipe(catchError(() => of([]))).subscribe((u: any[]) => { this.users = u; this.cdr.detectChanges(); });
   }
 
   buildSummary(): void {
@@ -149,10 +149,12 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   applyFilter(): void {
-    this.filtered = this.notifications.filter(n => {
+    this.filtered = this.notifications.filter((n: any) => {
       const ms = !this.search || n.message?.toLowerCase().includes(this.search.toLowerCase());
       const mc = !this.filterCategory || n.category === this.filterCategory;
-      const mst = !this.filterStatus || n.status === this.filterStatus;
+      const mst = !this.filterStatus
+        || (this.filterStatus === 'UNREAD' && !n.isRead)
+        || (this.filterStatus === 'READ' && n.isRead);
       return ms && mc && mst;
     });
   }
@@ -174,7 +176,7 @@ export class AdminNotificationsComponent implements OnInit {
 
   send(): void {
     if (!this.form.message || !this.form.userId) { this.toast.show('Please fill in all fields', 'warning'); return; }
-    this.api.createNotification(this.form).subscribe({
+    this.api.createNotification({ ...this.form, status: 'SENT' }).subscribe({
       next: () => { this.toast.show('Notification sent successfully', 'success'); this.showComposer = false; this.load(); },
       error: () => this.toast.show('Failed to send', 'error')
     });

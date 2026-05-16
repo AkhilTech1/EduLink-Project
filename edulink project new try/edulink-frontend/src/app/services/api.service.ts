@@ -36,6 +36,7 @@ export class ApiService {
 
   getAllEnrollments(): Observable<any[]> { return this.http.get<any[]>('/api/students/enrollments'); }
   getMyEnrollments(): Observable<any[]> { return this.http.get<any[]>('/api/students/my-enrollments'); }
+  getMyStudent(): Observable<any> { return this.http.get<any>('/api/students/me'); }
   getEnrollmentsByStudent(sid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/${sid}/enrollments`); }
   getEnrollmentsByCourse(cid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/enrollments/course/${cid}`); }
   getEnrollmentsByTeacher(tid: number): Observable<any[]> { return this.http.get<any[]>(`/api/students/enrollments/teacher/${tid}`); }
@@ -78,5 +79,8 @@ export class ApiService {
 
   getNotifications(): Observable<any[]> { return this.http.get<any[]>('/api/notifications'); }
   getNotificationsByUser(uid: number): Observable<any[]> { return this.http.get<any[]>(`/api/notifications/user/${uid}`); }
+  getUnreadNotifications(uid: number): Observable<any[]> { return this.http.get<any[]>(`/api/notifications/user/${uid}/unread`); }
   createNotification(d: any): Observable<any> { return this.http.post<any>('/api/notifications', d); }
+  markNotificationRead(id: number): Observable<any> { return this.http.patch<any>(`/api/notifications/${id}/read`, {}); }
+  submitQuiz(d: any): Observable<any> { return this.http.post<any>('/api/submissions', d); }
 }

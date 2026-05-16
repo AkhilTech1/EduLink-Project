@@ -18,6 +18,8 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDateTime createdDate;
+    @Builder.Default
+    private boolean isRead = false;
     public enum Category { ENROLLMENT, COURSE, EXAM, COMPLIANCE }
     public enum Status { SENT, PENDING, FAILED }
 }

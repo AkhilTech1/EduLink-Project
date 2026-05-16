@@ -11,10 +11,12 @@ public class Exam {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long examId;
     private Long courseId;
+    private Long teacherId;
     private String gradeLevel;
     @Enumerated(EnumType.STRING)
     private ExamType type;
     private LocalDate date;
+    private LocalDate deadline;
     @Enumerated(EnumType.STRING)
     private Status status;
     @Column(columnDefinition = "LONGTEXT")

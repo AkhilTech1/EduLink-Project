@@ -106,13 +106,12 @@ import { ToastService } from '../../services/toast.service';
                     <div class="text-muted small mb-2">🪪 ID Proof</div>
                     <div class="fw-semibold small mb-2" style="color:var(--text-primary)">{{ selected.idProofFileName }}</div>
                     <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-primary" (click)="previewFile(selected.idProofData, selected.idProofFileType, 'id')">Preview</button>
+                      <button class="btn btn-sm btn-outline-primary" (click)="openFile(selected.idProofData, selected.idProofFileType)">Preview</button>
                       <button class="btn btn-sm btn-outline-secondary" (click)="downloadFile(selected.idProofData, selected.idProofFileType, selected.idProofFileName)">Download</button>
                     </div>
                     <div *ngIf="previewType==='id'" class="mt-2">
                       <img *ngIf="isImage(selected.idProofFileType)" [src]="'data:'+selected.idProofFileType+';base64,'+selected.idProofData"
                         class="img-fluid rounded" style="max-height:200px">
-                      <div *ngIf="!isImage(selected.idProofFileType)" class="text-muted small">PDF preview not available. Please download to view.</div>
                     </div>
                   </div>
                 </div>
@@ -122,13 +121,12 @@ import { ToastService } from '../../services/toast.service';
                     <div class="text-muted small mb-2">📄 Admission Letter</div>
                     <div class="fw-semibold small mb-2" style="color:var(--text-primary)">{{ selected.admissionLetterFileName }}</div>
                     <div class="d-flex gap-2">
-                      <button class="btn btn-sm btn-outline-primary" (click)="previewFile(selected.admissionLetterData, selected.admissionLetterFileType, 'adm')">Preview</button>
+                      <button class="btn btn-sm btn-outline-primary" (click)="openFile(selected.admissionLetterData, selected.admissionLetterFileType)">Preview</button>
                       <button class="btn btn-sm btn-outline-secondary" (click)="downloadFile(selected.admissionLetterData, selected.admissionLetterFileType, selected.admissionLetterFileName)">Download</button>
                     </div>
                     <div *ngIf="previewType==='adm'" class="mt-2">
                       <img *ngIf="isImage(selected.admissionLetterFileType)" [src]="'data:'+selected.admissionLetterFileType+';base64,'+selected.admissionLetterData"
                         class="img-fluid rounded" style="max-height:200px">
-                      <div *ngIf="!isImage(selected.admissionLetterFileType)" class="text-muted small">PDF preview not available. Please download to view.</div>
                     </div>
                   </div>
                 </div>
