@@ -98,8 +98,16 @@ import { ToastService } from '../../services/toast.service';
             </div>
             <div class="modal-body">
               <div class="mb-3"><label>Full Name</label><input class="form-control mt-1" [(ngModel)]="form.name" placeholder="Full name"></div>
-              <div class="mb-3" *ngIf="!editId"><label>Email</label><input type="email" class="form-control mt-1" [(ngModel)]="form.email" placeholder="Email address"></div>
-              <div class="mb-3"><label>Phone</label><input class="form-control mt-1" [(ngModel)]="form.phone" placeholder="Phone number"></div>
+              <div class="mb-3" *ngIf="!editId">
+                <label>Email</label>
+                <input type="email" class="form-control mt-1" [(ngModel)]="form.email" placeholder="Email address" (blur)="validateEmail()">
+                <div class="small mt-1" style="color:#ef4444" *ngIf="errors.email">{{ errors.email }}</div>
+              </div>
+              <div class="mb-3">
+                <label>Phone</label>
+                <input class="form-control mt-1" [(ngModel)]="form.phone" placeholder="Phone number" (blur)="validatePhone()">
+                <div class="small mt-1" style="color:#ef4444" *ngIf="errors.phone">{{ errors.phone }}</div>
+              </div>
               <div class="mb-3" *ngIf="!editId">
                 <label>Password</label>
                 <div class="input-group mt-1">
@@ -169,6 +177,7 @@ export class AdminStaffComponent implements OnInit {
   deleteTarget: any = null;
   form: any = {};
   roleSummary: any[] = [];
+  errors: { email?: string; phone?: string } = {};
 
   constructor(private auth: AuthService, private toast: ToastService, private cdr: ChangeDetectorRef) {}
 
@@ -208,6 +217,29 @@ export class AdminStaffComponent implements OnInit {
   resetForm(): void {
     this.editId = null;
     this.form = { name: '', email: '', phone: '', password: '', role: '', status: 'ACTIVE' };
+    this.errors = {};
+  }
+
+  validateEmail(): void {
+    const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    if (!this.form.email) {
+      this.errors.email = 'Email is required';
+    } else if (!emailRegex.test(this.form.email)) {
+      this.errors.email = 'Enter a valid email address';
+    } else {
+      this.errors.email = undefined;
+    }
+  }
+
+  validatePhone(): void {
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!this.form.phone) {
+      this.errors.phone = 'Phone number is required';
+    } else if (!phoneRegex.test(this.form.phone.replace(/\s/g, ''))) {
+      this.errors.phone = 'Enter a valid 10-digit phone number';
+    } else {
+      this.errors.phone = undefined;
+    }
   }
 
   edit(u: any): void {
@@ -240,11 +272,16 @@ export class AdminStaffComponent implements OnInit {
 
   save(): void {
     if (this.editId) {
+      this.validatePhone();
+      if (this.errors.phone) return;
       this.auth.updateUser(this.editId, this.form).subscribe({
         next: () => { this.toast.show('Staff updated', 'success'); this.showModal = false; this.load(); },
         error: () => this.toast.show('Failed to update', 'error')
       });
     } else {
+      this.validateEmail();
+      this.validatePhone();
+      if (this.errors.email || this.errors.phone) return;
       if (!this.form.role) { this.toast.show('Please select a role', 'warning'); return; }
       this.auth.register(this.form).subscribe({
         next: () => { this.toast.show(`${this.form.role} account created`, 'success'); this.showModal = false; this.load(); },

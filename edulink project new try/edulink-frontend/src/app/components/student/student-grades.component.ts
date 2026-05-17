@@ -2,6 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { catchError, forkJoin, of } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-student-grades',
@@ -147,26 +148,35 @@ export class StudentGradesComponent implements OnInit {
   avgScore = 0;
   bestGrade = '—';
 
-  constructor(private api: ApiService, private cdr: ChangeDetectorRef) {}
+  constructor(private api: ApiService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
-    forkJoin({
-      grades: this.api.getGrades().pipe(catchError(() => of([]))),
-      exams: this.api.getExams().pipe(catchError(() => of([]))),
-      courses: this.api.getCourses().pipe(catchError(() => of([]))),
-      metrics: this.api.getPerformance().pipe(catchError(() => of([]))),
-    }).subscribe(d => {
-      this.grades = d.grades;
-      this.exams = d.exams;
-      this.courses = d.courses;
-      this.metrics = d.metrics;
-      this.compute();
-      this.cdr.detectChanges();
+    this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
+      if (!user) return;
+      this.api.getMyStudent().pipe(catchError(() => of(null))).subscribe((student: any) => {
+        const studentId = student?.studentId;
+        const grades$ = studentId
+          ? this.api.getGradesByStudent(studentId).pipe(catchError(() => of([])))
+          : this.api.getGrades().pipe(catchError(() => of([])));
+        forkJoin({
+          grades: grades$,
+          exams: this.api.getExams().pipe(catchError(() => of([]))),
+          courses: this.api.getCourses().pipe(catchError(() => of([]))),
+          metrics: this.api.getPerformance().pipe(catchError(() => of([]))),
+        }).subscribe(d => {
+          this.grades = d.grades;
+          this.exams = d.exams;
+          this.courses = d.courses;
+          this.metrics = d.metrics;
+          this.compute();
+          this.cdr.detectChanges();
+        });
+      });
     });
   }
 
   compute(): void {
-    this.passed = this.grades.filter(g => g.status === 'PASS').length;
+    this.passed = this.grades.filter(g => g.grade && g.grade !== 'F').length;
     this.avgScore = this.grades.length ? Math.round(this.grades.reduce((a, g) => a + g.score, 0) / this.grades.length) : 0;
     const sorted = [...this.grades].sort((a, b) => b.score - a.score);
     this.bestGrade = sorted[0]?.grade || '—';

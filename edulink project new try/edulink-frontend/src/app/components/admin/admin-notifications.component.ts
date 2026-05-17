@@ -39,10 +39,12 @@ import { catchError, of } from 'rxjs';
           <div class="col-md-6">
             <label>Category</label>
             <select class="form-select mt-1" [(ngModel)]="form.category">
+              <option value="">-- Select category --</option>
               <option value="GENERAL">📢 General Announcement</option>
               <option value="EXAM">📝 Exam Schedule</option>
               <option value="ENROLLMENT">📋 Enrollment</option>
             </select>
+            <div class="small mt-1" style="color:#ef4444" *ngIf="errors.category">{{ errors.category }}</div>
           </div>
           <div class="col-md-6">
             <label>Send To (User ID)</label>
@@ -53,10 +55,15 @@ import { catchError, of } from 'rxjs';
                 <option *ngFor="let u of users" [value]="u.userId">{{ u.name }} ({{ u.role }})</option>
               </select>
             </div>
+            <div class="small mt-1" style="color:#ef4444" *ngIf="errors.userId">{{ errors.userId }}</div>
           </div>
           <div class="col-12">
             <label>Message</label>
             <textarea class="form-control mt-1" [(ngModel)]="form.message" rows="3" placeholder="Type your announcement or message here..."></textarea>
+            <div class="d-flex justify-content-between mt-1">
+              <div class="small" style="color:#ef4444" *ngIf="errors.message">{{ errors.message }}</div>
+              <div class="small text-muted ms-auto">{{ form.message?.length || 0 }} / 500</div>
+            </div>
           </div>
           <div class="col-12">
             <div class="d-flex gap-2 flex-wrap">
@@ -124,6 +131,7 @@ export class AdminNotificationsComponent implements OnInit {
   selectedUser = '';
   form: any = {};
   categorySummary: any[] = [];
+  errors: { category?: string; userId?: string; message?: string } = {};
 
   constructor(private api: ApiService, private toast: ToastService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
@@ -159,7 +167,11 @@ export class AdminNotificationsComponent implements OnInit {
     });
   }
 
-  resetForm(): void { this.form = { userId: '', entityId: 1, message: '', category: 'GENERAL', status: 'UNREAD' }; this.selectedUser = ''; }
+  resetForm(): void {
+    this.form = { userId: '', entityId: 1, message: '', category: '', status: 'SENT' };
+    this.selectedUser = '';
+    this.errors = {};
+  }
 
   setUser(): void { if (this.selectedUser) this.form.userId = this.selectedUser; }
 
@@ -175,7 +187,17 @@ export class AdminNotificationsComponent implements OnInit {
   }
 
   send(): void {
-    if (!this.form.message || !this.form.userId) { this.toast.show('Please fill in all fields', 'warning'); return; }
+    this.errors = {};
+    if (!this.form.category) this.errors.category = 'Please select a category';
+    if (!this.form.userId) this.errors.userId = 'Please select a recipient';
+    if (!this.form.message?.trim()) {
+      this.errors.message = 'Message is required';
+    } else if (this.form.message.trim().length < 10) {
+      this.errors.message = 'Message must be at least 10 characters';
+    } else if (this.form.message.length > 500) {
+      this.errors.message = 'Message must not exceed 500 characters';
+    }
+    if (this.errors.category || this.errors.userId || this.errors.message) return;
     this.api.createNotification({ ...this.form, status: 'SENT' }).subscribe({
       next: () => { this.toast.show('Notification sent successfully', 'success'); this.showComposer = false; this.load(); },
       error: () => this.toast.show('Failed to send', 'error')

@@ -30,8 +30,8 @@ public class NotificationService {
                 .userId(request.getUserId())
                 .entityId(request.getEntityId())
                 .message(request.getMessage())
-                .category(Notification.Category.valueOf(request.getCategory()))
-                .status(Notification.Status.valueOf(request.getStatus()))
+                .category(request.getCategory() != null ? request.getCategory() : "GENERAL")
+                .status(request.getStatus() != null ? request.getStatus() : "SENT")
                 .createdDate(LocalDateTime.now())
                 .isRead(false)
                 .build();
@@ -44,8 +44,8 @@ public class NotificationService {
         n.setUserId(request.getUserId());
         n.setEntityId(request.getEntityId());
         n.setMessage(request.getMessage());
-        n.setCategory(Notification.Category.valueOf(request.getCategory()));
-        n.setStatus(Notification.Status.valueOf(request.getStatus()));
+        n.setCategory(request.getCategory() != null ? request.getCategory() : "GENERAL");
+        n.setStatus(request.getStatus() != null ? request.getStatus() : "SENT");
         return NotificationDto.Response.from(notificationRepository.save(n));
     }
 

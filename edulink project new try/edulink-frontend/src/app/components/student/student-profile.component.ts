@@ -53,7 +53,8 @@ import { ToastService } from '../../services/toast.service';
               </div>
               <div class="col-md-6">
                 <label>Phone Number <span class="text-success small" *ngIf="editing">✏️ Editable</span></label>
-                <input class="form-control mt-1" [(ngModel)]="editForm.phone" [disabled]="!editing" [class.border-success]="editing">
+                <input class="form-control mt-1" [(ngModel)]="editForm.phone" [disabled]="!editing" [class.border-success]="editing" [class.is-invalid]="phoneError">
+                <div class="invalid-feedback" *ngIf="phoneError">{{ phoneError }}</div>
               </div>
               <div class="col-md-6">
                 <label>Date of Birth</label>
@@ -129,6 +130,7 @@ export class StudentProfileComponent implements OnInit {
   editForm: any = {};
   initials = '';
   previewType = '';
+  phoneError = '';
 
   constructor(private auth: AuthService, private toast: ToastService, private cdr: ChangeDetectorRef) {}
 
@@ -145,15 +147,28 @@ export class StudentProfileComponent implements OnInit {
 
   cancelEdit(): void {
     this.editing = false;
+    this.phoneError = '';
     this.editForm = { phone: this.profile?.phone || '', address: this.profile?.address || '' };
   }
 
   save(): void {
-    this.auth.updateUser(this.profile.userId, { name: this.profile.name, phone: this.editForm.phone, status: this.profile.status }).subscribe({
+    this.phoneError = '';
+    const phoneRegex = /^[0-9]{10}$/;
+    const phone = (this.editForm.phone || '').replace(/\s/g, '');
+    if (!phone) {
+      this.phoneError = 'Phone number is required';
+      return;
+    }
+    if (!phoneRegex.test(phone)) {
+      this.phoneError = 'Enter a valid 10-digit phone number';
+      return;
+    }
+    this.auth.updateMe({ name: this.profile.name, phone, status: this.profile.status }).subscribe({
       next: () => {
-        this.profile.phone = this.editForm.phone;
+        this.profile.phone = phone;
         this.profile.address = this.editForm.address;
         this.editing = false;
+        this.phoneError = '';
         this.toast.show('Profile updated successfully', 'success');
         this.cdr.detectChanges();
       },

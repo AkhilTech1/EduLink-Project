@@ -13,13 +13,9 @@ public class Notification {
     private Long userId;
     private Long entityId;
     private String message;
-    @Enumerated(EnumType.STRING)
-    private Category category;
-    @Enumerated(EnumType.STRING)
-    private Status status;
+    private String category;
+    private String status;
     private LocalDateTime createdDate;
     @Builder.Default
     private boolean isRead = false;
-    public enum Category { ENROLLMENT, COURSE, EXAM, COMPLIANCE }
-    public enum Status { SENT, PENDING, FAILED }
 }

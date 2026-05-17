@@ -42,6 +42,7 @@ export class AuthService {
   isLoggedIn(): boolean { return !!this.getToken(); }
 
   getMe(): Observable<User> { return this.http.get<User>(`${this.base}/me`); }
+  updateMe(data: any): Observable<User> { return this.http.put<User>(`${this.base}/me`, data); }
   getUsers(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/users`); }
   getUserById(id: number): Observable<User> { return this.http.get<User>(`${this.base}/users/${id}`); }
   updateUser(id: number, data: any): Observable<User> { return this.http.put<User>(`${this.base}/users/${id}`, data); }

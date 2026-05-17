@@ -13,7 +13,6 @@ import { ToastService } from '../../services/toast.service';
     <div>
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="section-title mb-0">User Management</h2>
-        <button class="btn-accent" (click)="showModal=true;resetForm()">+ Add User</button>
       </div>
 
       <div class="table-wrapper">

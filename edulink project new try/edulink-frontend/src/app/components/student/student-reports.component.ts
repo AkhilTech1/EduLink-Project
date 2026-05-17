@@ -38,12 +38,6 @@ import { ToastService } from '../../services/toast.service';
             <div class="fw-bold" style="font-size:1.8rem;" [ngStyle]="{'color': attendancePct>=75?'#10b981':'#ef4444'}">{{ attendancePct }}%</div>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card text-center">
-            <div class="text-muted small mb-1">Pass Rate</div>
-            <div class="fw-bold" style="font-size:1.8rem;color:#f59e0b">{{ passRate }}%</div>
-          </div>
-        </div>
       </div>
 
       <!-- Report Cards -->
@@ -142,45 +136,59 @@ export class StudentReportsComponent implements OnInit {
   ngOnInit(): void {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
-      forkJoin({
-        enrollments: this.api.getEnrollmentsByStudent(user.userId).pipe(catchError(() => of([]))),
-        grades: this.api.getGrades().pipe(catchError(() => of([]))),
-        exams: this.api.getExams().pipe(catchError(() => of([]))),
-        courses: this.api.getCourses().pipe(catchError(() => of([]))),
-      }).subscribe(d => {
-        this.courses = d.courses as any[];
-        this.exams = d.exams as any[];
-        this.grades = d.grades as any[];
-        this.enrolledCourses = (d.enrollments as any[]).length;
-        this.passed = this.grades.filter(g => g.status === 'PASS').length;
-        this.failed = this.grades.filter(g => g.status === 'FAIL').length;
-        this.avgScore = this.grades.length ? Math.round(this.grades.reduce((a, g) => a + g.score, 0) / this.grades.length) : 0;
-        this.passRate = this.grades.length ? Math.round((this.passed / this.grades.length) * 100) : 0;
+      this.api.getMyStudent().pipe(catchError(() => of(null))).subscribe((student: any) => {
+        const studentId = student?.studentId || null;
+        forkJoin({
+          enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
+          grades: studentId ? this.api.getGradesByStudent(studentId).pipe(catchError(() => of([]))) : of([]),
+          exams: this.api.getExams().pipe(catchError(() => of([]))),
+          courses: this.api.getCourses().pipe(catchError(() => of([]))),
+        }).subscribe(d => {
+          const enrollments = d.enrollments as any[];
+          const resolvedStudentId = studentId || enrollments[0]?.studentId;
+          this.courses = d.courses as any[];
+          this.exams = d.exams as any[];
+          this.grades = d.grades as any[];
+          this.enrolledCourses = new Set(enrollments.map((e: any) => e.courseId)).size;
+          this.passed = this.grades.filter(g => g.grade && g.grade !== 'F').length;
+          this.failed = this.grades.filter(g => g.grade === 'F').length;
 
-        const subMap: Record<string, number[]> = {};
-        this.grades.forEach(g => {
-          const exam = this.exams.find(e => e.examId === g.examId);
-          const course = exam ? this.courses.find(c => c.courseId === exam.courseId) : null;
-          const subj = course?.subject || `Course ${exam?.courseId || '?'}`;
-          if (!subMap[subj]) subMap[subj] = [];
-          subMap[subj].push(g.score);
-        });
-        this.subjectPerformance = Object.entries(subMap).map(([subject, scores]) => ({
-          subject, avg: Math.round(scores.reduce((a, s) => a + s, 0) / scores.length)
-        })).sort((a, b) => b.avg - a.avg);
-
-        // get attendance using studentId from enrollment
-        const studentId = (d.enrollments as any[])[0]?.studentId;
-        if (studentId) {
-          this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe(a => {
-            this.attendance = a as any[];
-            this.present = this.attendance.filter(x => x.status === 'PRESENT').length;
-            this.absent = this.attendance.filter(x => x.status === 'ABSENT').length;
-            this.attendancePct = this.attendance.length ? Math.round((this.present / this.attendance.length) * 100) : 0;
-            this.cdr.detectChanges();
+          // avgScore as percentage — same as exams component
+          const examMap: Record<number, number> = {};
+          this.exams.forEach((e: any) => {
+            if (e.questions) { try { const p = JSON.parse(e.questions); examMap[e.examId] = (p.items?.length || 0) * 10; } catch {} }
           });
-        }
-        this.cdr.detectChanges();
+          const pctScores = this.grades.map((g: any) => {
+            const max = examMap[g.examId];
+            return max ? Math.round((g.score / max) * 100) : g.score;
+          });
+          this.avgScore = pctScores.length ? Math.round(pctScores.reduce((a, v) => a + v, 0) / pctScores.length) : 0;
+          this.passRate = this.grades.length ? Math.round((this.passed / this.grades.length) * 100) : 0;
+
+          const subMap: Record<string, number[]> = {};
+          this.grades.forEach(g => {
+            const exam = this.exams.find(e => e.examId === g.examId);
+            const course = exam ? this.courses.find(c => c.courseId === exam.courseId) : null;
+            const subj = course?.subject || `Course ${exam?.courseId || '?'}`;
+            if (!subMap[subj]) subMap[subj] = [];
+            const max = examMap[g.examId];
+            subMap[subj].push(max ? Math.round((g.score / max) * 100) : g.score);
+          });
+          this.subjectPerformance = Object.entries(subMap).map(([subject, scores]) => ({
+            subject, avg: Math.round(scores.reduce((a, s) => a + s, 0) / scores.length)
+          })).sort((a, b) => b.avg - a.avg);
+
+          if (resolvedStudentId) {
+            this.api.getAttendanceByStudent(resolvedStudentId).pipe(catchError(() => of([]))).subscribe(a => {
+              this.attendance = a as any[];
+              this.present = this.attendance.filter(x => x.status === 'PRESENT').length;
+              this.absent = this.attendance.filter(x => x.status === 'ABSENT').length;
+              this.attendancePct = this.attendance.length ? Math.round((this.present / this.attendance.length) * 100) : 0;
+              this.cdr.detectChanges();
+            });
+          }
+          this.cdr.detectChanges();
+        });
       });
     });
   }

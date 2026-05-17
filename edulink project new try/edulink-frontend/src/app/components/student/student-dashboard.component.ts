@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -216,18 +216,32 @@ export class StudentDashboardComponent implements OnInit {
         forkJoin({
           enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
           courses: this.api.getCourses().pipe(catchError(() => of([]))),
-          grades: this.api.getGrades().pipe(catchError(() => of([]))),
+          exams: this.api.getExams().pipe(catchError(() => of([]))),
+
         }).subscribe(d => {
           const enrollments = d.enrollments as any[];
-          // prefer studentId from getMyStudent(), fallback to enrollments
           const resolvedStudentId = studentId || enrollments[0]?.studentId;
 
+          const grades$ = resolvedStudentId
+            ? this.api.getGradesByStudent(resolvedStudentId).pipe(catchError(() => of([])))
+            : of([]);
+
+          grades$.subscribe((gradesData: any[]) => {
           const enrolledIds = new Set(enrollments.filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
           this.courses = (d.courses as any[]).filter(c => enrolledIds.has(c.courseId));
-          this.grades = d.grades as any[];
-          this.passed = this.grades.filter(g => g.status === 'PASS').length;
-          this.failed = this.grades.filter(g => g.status === 'FAIL').length;
-          this.avgScore = this.grades.length ? Math.round(this.grades.reduce((a, g) => a + g.score, 0) / this.grades.length) : 0;
+          this.grades = gradesData;
+          this.passed = this.grades.filter(g => g.grade && g.grade !== 'F').length;
+          this.failed = this.grades.filter(g => g.grade === 'F').length;
+          // Compute avgScore as percentage - same as exams component
+          const examMap: Record<number, number> = {};
+          (d.exams as any[]).forEach((e: any) => {
+            if (e.questions) { try { const p = JSON.parse(e.questions); examMap[e.examId] = (p.items?.length || 0) * 10; } catch {} }
+          });
+          const pctScores = this.grades.map((g: any) => {
+            const max = examMap[g.examId];
+            return max ? Math.round((g.score / max) * 100) : g.score;
+          });
+          this.avgScore = pctScores.length ? Math.round(pctScores.reduce((a: number, v: number) => a + v, 0) / pctScores.length) : 0;
           const gc: Record<string, number> = {};
           this.grades.forEach(g => { gc[g.grade] = (gc[g.grade] || 0) + 1; });
           const colors: Record<string, string> = { A: '#10b981', B: '#4f46e5', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
@@ -257,6 +271,7 @@ export class StudentDashboardComponent implements OnInit {
               this.buildKpis();
               this.cdr.detectChanges();
             }
+          });
           });
         });
       });

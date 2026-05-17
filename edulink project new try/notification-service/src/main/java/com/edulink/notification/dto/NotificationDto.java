@@ -34,8 +34,8 @@ public class NotificationDto {
                     .userId(n.getUserId())
                     .entityId(n.getEntityId())
                     .message(n.getMessage())
-                    .category(n.getCategory().name())
-                    .status(n.getStatus().name())
+                    .category(n.getCategory())
+                    .status(n.getStatus())
                     .createdDate(n.getCreatedDate())
                     .isRead(n.isRead())
                     .build();

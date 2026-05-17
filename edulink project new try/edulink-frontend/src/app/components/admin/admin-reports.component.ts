@@ -131,7 +131,6 @@ import { AuthService } from '../../services/auth.service';
         <select class="form-select form-select-sm" style="width:150px" [(ngModel)]="filterScope" (change)="applyFilter()">
           <option value="">All Scopes</option>
           <option value="STUDENT">Student</option>
-          <option value="COURSE" *ngIf="role !== 'BOARD'">Course</option>
           <option value="PERFORMANCE">Performance</option>
         </select>
       </div>
@@ -181,7 +180,7 @@ export class AdminReportsComponent implements OnInit {
     }).subscribe(d => {
       this.reports = this.role === 'BOARD'
         ? (d.reports as any[]).filter((r: any) => r.scope !== 'COURSE')
-        : d.reports;
+        : (d.reports as any[]).filter((r: any) => r.scope !== 'COURSE');
       this.filteredReports = this.reports;
 
       const students = d.students as any[];

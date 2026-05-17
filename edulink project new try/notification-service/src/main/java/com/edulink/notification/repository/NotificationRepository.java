@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
     List<Notification> findByUserId(Long userId);
-    List<Notification> findByCategory(Notification.Category category);
+    List<Notification> findByCategory(String category);
     List<Notification> findByUserIdAndIsRead(Long userId, boolean isRead);
 }

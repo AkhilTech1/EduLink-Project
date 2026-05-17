@@ -14,13 +14,6 @@ import { catchError, of } from 'rxjs';
     <div>
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="section-title mb-0">Students</h2>
-        <div class="d-flex gap-2 align-items-center">
-          <div class="d-flex gap-1">
-            <button class="btn btn-sm" [ngClass]="activeTab==='list'?'btn-accent':'btn-outline-secondary'" (click)="activeTab='list'">All Students</button>
-            <button class="btn btn-sm" [ngClass]="activeTab==='assign'?'btn-accent':'btn-outline-secondary'" *ngIf="role==='ADMIN'" (click)="activeTab='assign'">Assign to Teacher</button>
-          </div>
-
-        </div>
       </div>
 
       <!-- Students List Tab -->
@@ -246,9 +239,10 @@ export class AdminStudentsComponent implements OnInit {
   setFilter(f: string): void { this.filter = f; this.applyFilter(); }
 
   applyFilter(): void {
+    const nonRejected = this.allStudents.filter(s => s.registrationStatus !== 'REJECTED');
     this.filtered = this.filter === 'ALL'
-      ? this.allStudents
-      : this.allStudents.filter(s => s.registrationStatus === this.filter);
+      ? nonRejected
+      : nonRejected.filter(s => s.registrationStatus === this.filter);
   }
 
   viewStudent(s: any): void { this.viewSelected = s; }

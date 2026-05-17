@@ -190,7 +190,7 @@ export class AdminDashboardComponent implements OnInit {
       const approvedStudents = d.students.filter((s: any) => s.status === 'ACTIVE').length;
 
       this.passRate = d.grades.length ?
-        Math.round(d.grades.filter((g: any) => g.status === 'PASS').length / d.grades.length * 100) : 0;
+        Math.round(d.grades.filter((g: any) => g.grade && g.grade !== 'F').length / d.grades.length * 100) : 0;
 
       this.avgScore = d.grades.length ?
         Math.round(d.grades.reduce((a: number, g: any) => a + g.score, 0) / d.grades.length) : 0;

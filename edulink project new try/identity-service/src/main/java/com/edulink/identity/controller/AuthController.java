@@ -55,6 +55,19 @@ public class AuthController {
         return ResponseEntity.ok(authService.getUserByEmail(claims.getSubject()));
     }
 
+    @PutMapping("/me")
+    public ResponseEntity<UserDto.Response> updateMe(@RequestHeader("Authorization") String authHeader,
+                                                     @RequestBody UserDto.Request request) {
+        String token = authHeader.replace("Bearer ", "");
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(jwtSecret.getBytes()))
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        UserDto.Response user = authService.getUserByEmail(claims.getSubject());
+        return ResponseEntity.ok(authService.updateUser(user.getUserId(), request));
+    }
+
     @GetMapping("/users")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT', 'BOARD', 'COMPLIANCE', 'REGULATOR')")
     public ResponseEntity<List<UserDto.Response>> getUsers() {
