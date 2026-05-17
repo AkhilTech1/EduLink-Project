@@ -14,6 +14,7 @@ public class LearningMaterial {
     private String title;
     @Column(columnDefinition = "LONGTEXT")
     private String fileUri;
+    private String mimeType;
     private LocalDate uploadedDate;
     @Enumerated(EnumType.STRING)
     private Status status;

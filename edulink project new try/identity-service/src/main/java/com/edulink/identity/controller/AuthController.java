@@ -73,6 +73,13 @@ public class AuthController {
         return ResponseEntity.ok(authService.updateUser(id, request));
     }
 
+    @PutMapping("/users/{id}/password")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody AuthDto.ChangePasswordRequest request) {
+        authService.changePassword(id, request.getNewPassword());
+        return ResponseEntity.ok(java.util.Map.of("message", "Password updated successfully"));
+    }
+
     @DeleteMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {

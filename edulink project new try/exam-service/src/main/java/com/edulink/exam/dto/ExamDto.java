@@ -4,6 +4,7 @@ import com.edulink.exam.entity.Exam;
 import lombok.Builder;
 import lombok.Data;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class ExamDto {
 
@@ -28,7 +29,7 @@ public class ExamDto {
         private String gradeLevel;
         private String type;
         private LocalDate date;
-        private LocalDate deadline;
+        private LocalDateTime deadline;
         private String status;
         private String questions;
 

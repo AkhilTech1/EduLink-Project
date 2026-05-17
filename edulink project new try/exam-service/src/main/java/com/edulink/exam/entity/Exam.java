@@ -3,6 +3,7 @@ package com.edulink.exam.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "exams")
@@ -16,7 +17,7 @@ public class Exam {
     @Enumerated(EnumType.STRING)
     private ExamType type;
     private LocalDate date;
-    private LocalDate deadline;
+    private LocalDateTime deadline;
     @Enumerated(EnumType.STRING)
     private Status status;
     @Column(columnDefinition = "LONGTEXT")

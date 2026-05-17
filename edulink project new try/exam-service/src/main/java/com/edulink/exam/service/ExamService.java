@@ -62,7 +62,7 @@ public class ExamService {
                 .gradeLevel(request.getGradeLevel())
                 .type(Exam.ExamType.valueOf(request.getType() != null ? request.getType() : "QUIZ"))
                 .date(parseDate(request.getDate()))
-                .deadline(parseDate(request.getDeadline()))
+                .deadline(parseDeadline(request.getDeadline()))
                 .status(Exam.Status.valueOf(request.getStatus() != null ? request.getStatus() : "SCHEDULED"))
                 .questions(request.getQuestions())
                 .build();
@@ -82,7 +82,7 @@ public class ExamService {
         if (request.getGradeLevel() != null) exam.setGradeLevel(request.getGradeLevel());
         if (request.getType() != null) exam.setType(Exam.ExamType.valueOf(request.getType()));
         if (request.getDate() != null) exam.setDate(parseDate(request.getDate()));
-        if (request.getDeadline() != null) exam.setDeadline(parseDate(request.getDeadline()));
+        if (request.getDeadline() != null) exam.setDeadline(parseDeadline(request.getDeadline()));
         if (request.getStatus() != null) exam.setStatus(Exam.Status.valueOf(request.getStatus()));
         if (request.getQuestions() != null) exam.setQuestions(request.getQuestions());
         return ExamDto.Response.from(examRepository.save(exam));
@@ -96,6 +96,8 @@ public class ExamService {
         if (!examRepository.existsById(id))
             throw new ResourceNotFoundException("Exam not found with id: " + id);
         examEnrollmentRepository.deleteAll(examEnrollmentRepository.findByExamId(id));
+        submissionRepository.deleteAll(submissionRepository.findByExamId(id));
+        gradeRepository.deleteAll(gradeRepository.findByExamId(id));
         examRepository.deleteById(id);
     }
 
@@ -138,12 +140,6 @@ public class ExamService {
                 .submittedAt(LocalDateTime.now())
                 .build();
         SubmissionDto.Response saved = SubmissionDto.Response.from(submissionRepository.save(submission));
-
-        // Mark exam as COMPLETED on submission
-        examRepository.findById(request.getExamId()).ifPresent(exam -> {
-            exam.setStatus(Exam.Status.COMPLETED);
-            examRepository.save(exam);
-        });
 
         Exam exam = examRepository.findById(request.getExamId()).orElse(null);
         String msg = "Student (ID: " + request.getStudentId() + ") has submitted the "
@@ -213,6 +209,16 @@ public class ExamService {
 
     // ── Dashboard Queries ────────────────────────────────────────────────────
 
+    public List<ExamDto.Response> getUnattemptedExamsByStudent(Long studentId, String gradeLevel) {
+        List<Long> attemptedExamIds = submissionRepository.findByStudentId(studentId)
+                .stream().map(QuizSubmission::getExamId).toList();
+        return examRepository.findByGradeLevel(gradeLevel).stream()
+                .filter(e -> e.getType() == Exam.ExamType.QUIZ
+                        && !attemptedExamIds.contains(e.getExamId())
+                        && (e.getDeadline() == null || LocalDateTime.now().isBefore(e.getDeadline())))
+                .map(ExamDto.Response::from).toList();
+    }
+
     public List<ExamDto.Response> getUpcomingExamsForStudent(Long studentId) {
         List<Long> examIds = examEnrollmentRepository.findByStudentId(studentId)
                 .stream().map(ExamEnrollment::getExamId).toList();
@@ -248,14 +254,14 @@ public class ExamService {
 
     // ── Deadline Scheduler ───────────────────────────────────────────────────
 
-    /** Runs every day at midnight — marks any SCHEDULED/ONGOING quiz past its deadline as COMPLETED */
-    @Scheduled(cron = "0 0 0 * * *")
+    /** Runs every minute — marks any SCHEDULED/ONGOING quiz past its deadline as COMPLETED */
+    @Scheduled(cron = "0 * * * * *")
     public void markExpiredQuizzesCompleted() {
-        LocalDate today = LocalDate.now();
+        LocalDateTime now = LocalDateTime.now();
         examRepository.findAll().stream()
                 .filter(e -> e.getType() == Exam.ExamType.QUIZ
                         && e.getDeadline() != null
-                        && !today.isBefore(e.getDeadline())
+                        && now.isAfter(e.getDeadline())
                         && (e.getStatus() == Exam.Status.SCHEDULED || e.getStatus() == Exam.Status.ONGOING))
                 .forEach(e -> { e.setStatus(Exam.Status.COMPLETED); examRepository.save(e); });
     }
@@ -271,6 +277,13 @@ public class ExamService {
             notificationClient.send(exam.getTeacherId(), examId, staffMsg, "EXAM");
         }
         notificationClient.send(adminUserId, examId, staffMsg, "EXAM");
+    }
+
+    private LocalDateTime parseDeadline(String deadline) {
+        if (deadline == null || deadline.isBlank()) return null;
+        try { return LocalDateTime.parse(deadline); } catch (Exception e) {
+            try { return LocalDate.parse(deadline).atTime(23, 59, 59); } catch (Exception ex) { return null; }
+        }
     }
 
     private LocalDate parseDate(String date) {

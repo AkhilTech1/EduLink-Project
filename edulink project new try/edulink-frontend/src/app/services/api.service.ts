@@ -61,6 +61,7 @@ export class ApiService {
 
   getExams(): Observable<any[]> { return this.http.get<any[]>('/api/exams'); }
   getExamsByGrade(grade: string): Observable<any[]> { return this.http.get<any[]>(`/api/exams/grade/${encodeURIComponent(grade)}`); }
+  getUnattemptedExams(studentId: number, gradeLevel: string): Observable<any[]> { return this.http.get<any[]>(`/api/exams/student/${studentId}/unattempted?gradeLevel=${encodeURIComponent(gradeLevel)}`); }
   createExam(d: any): Observable<any> { return this.http.post<any>('/api/exams', d); }
   updateExam(id: number, d: any): Observable<any> { return this.http.put<any>(`/api/exams/${id}`, d); }
   deleteExam(id: number): Observable<any> { return this.http.delete(`/api/exams/${id}`); }

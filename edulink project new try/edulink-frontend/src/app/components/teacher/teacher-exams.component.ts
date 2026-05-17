@@ -34,7 +34,7 @@ import { ToastService } from '../../services/toast.service';
                 <div>
                   <div class="fw-bold" style="color:var(--text-primary)">{{ q.title }}</div>
                   <div class="text-muted small">Exam: {{ q.date }}</div>
-                  <div class="text-muted small" *ngIf="q.deadline">Deadline: {{ q.deadline }}</div>
+                  <div class="text-muted small" *ngIf="q.deadline">Deadline: {{ q.deadline | date:'dd MMM yyyy, hh:mm a' }}</div>
                 </div>
                 <span class="badge bg-info text-dark">{{ q.gradeLevel }}</span>
               </div>
@@ -54,7 +54,7 @@ import { ToastService } from '../../services/toast.service';
                 <div class="col-4">
                   <div class="p-2 rounded text-center" style="background:var(--bg-secondary)">
                     <div class="small text-muted">Status</div>
-                    <div class="fw-bold small" [ngClass]="q.status==='SCHEDULED'?'text-warning':'text-success'">{{ q.status }}</div>
+                    <div class="fw-bold small" [ngClass]="computeStatus(q)==='SCHEDULED'?'text-warning':'text-success'">{{ computeStatus(q) }}</div>
                   </div>
                 </div>
               </div>
@@ -130,9 +130,13 @@ import { ToastService } from '../../services/toast.service';
             <label class="form-label small fw-semibold">Exam Date *</label>
             <input type="date" class="form-control" [(ngModel)]="builder.date">
           </div>
-          <div class="col-md-3">
+          <div class="col-md-2">
             <label class="form-label small fw-semibold">Deadline Date *</label>
-            <input type="date" class="form-control" [(ngModel)]="builder.deadline">
+            <input type="date" class="form-control" [(ngModel)]="builder.deadlineDate">
+          </div>
+          <div class="col-md-2">
+            <label class="form-label small fw-semibold">Deadline Time *</label>
+            <input type="time" class="form-control" [(ngModel)]="builder.deadlineTime">
           </div>
         </div>
 
@@ -179,7 +183,7 @@ export class TeacherExamsComponent implements OnInit {
   myCourses: any[] = [];
   myGrades: string[] = [];
   saving = false;
-  builder: any = { title: '', gradeLevel: '', courseId: '', date: '', questions: [] };
+  builder: any = { title: '', gradeLevel: '', courseId: '', date: '', deadlineDate: '', deadlineTime: '23:59', questions: [] };
 
   constructor(private api: ApiService, private auth: AuthService, private toast: ToastService, private cdr: ChangeDetectorRef) {}
 
@@ -218,7 +222,8 @@ export class TeacherExamsComponent implements OnInit {
     this.builder = {
       title: '', gradeLevel: this.myGrades[0] || '', courseId: this.myCourses[0]?.courseId || '',
       date: new Date().toISOString().split('T')[0],
-      deadline: '',
+      deadlineDate: '',
+      deadlineTime: '23:59',
       questions: [this.newQuestion()]
     };
     this.showBuilder = true;
@@ -231,10 +236,11 @@ export class TeacherExamsComponent implements OnInit {
   trackByIndex(i: number): number { return i; }
 
   saveQuiz(): void {
-    if (!this.builder.title || !this.builder.gradeLevel || !this.builder.date || !this.builder.deadline) {
-      this.toast.show('Please fill Title, Grade, Exam Date and Deadline', 'error'); return;
+    if (!this.builder.title || !this.builder.gradeLevel || !this.builder.date || !this.builder.deadlineDate || !this.builder.deadlineTime) {
+      this.toast.show('Please fill Title, Grade, Exam Date, Deadline Date and Deadline Time', 'error'); return;
     }
-    if (this.builder.deadline < this.builder.date) {
+    const deadlineDateTime = `${this.builder.deadlineDate}T${this.builder.deadlineTime}:00`;
+    if (this.builder.deadlineDate < this.builder.date) {
       this.toast.show('Deadline must be on or after the exam date', 'error'); return;
     }
     if (this.builder.questions.some((q: any) => !q.text || q.options.some((o: string) => !o.trim()))) {
@@ -246,7 +252,7 @@ export class TeacherExamsComponent implements OnInit {
       gradeLevel: this.builder.gradeLevel,
       type: 'QUIZ',
       date: this.builder.date,
-      deadline: this.builder.deadline,
+      deadline: deadlineDateTime,
       status: 'SCHEDULED',
       questions: JSON.stringify({ title: this.builder.title, items: this.builder.questions })
     };
@@ -275,6 +281,11 @@ export class TeacherExamsComponent implements OnInit {
       this.selectedResults = (grades as any[]).filter(g => g.examId === quiz.examId);
       this.cdr.detectChanges();
     });
+  }
+
+  computeStatus(q: any): string {
+    if (!q.deadline) return q.status;
+    return new Date() > new Date(q.deadline) ? 'COMPLETED' : 'SCHEDULED';
   }
 
   questionCount(q: any): number { return q.parsedItems?.length || 0; }

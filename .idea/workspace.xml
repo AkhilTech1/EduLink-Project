@@ -4,7 +4,76 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8b559b03-f12c-4a1f-85c1-7f4b02d3a0bf" name="Changes" comment="" />
+    <list default="true" id="8b559b03-f12c-4a1f-85c1-7f4b02d3a0bf" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/.idea/amazonq.xml" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/.idea/amazonq.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/api-gateway/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/api-gateway/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/attendance-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/attendance-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/attendance-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/attendance-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/course-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/course-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/course-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/course-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-approvals.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-approvals.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-courses.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-courses.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-users.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-users.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/auth/login.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/auth/login.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/student/student-dashboard.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/student/student-dashboard.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-exams.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-exams.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-materials.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-materials.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-schedule.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-schedule.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-students.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-students.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/api.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/controller/ExamController.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/controller/ExamController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/dto/ExamDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/dto/ExamDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/entity/Exam.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/entity/Exam.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/service/ExamService.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/java/com/edulink/exam/service/ExamService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/ExamServiceApplication.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/ExamServiceApplication.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/controller/ExamController.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/controller/ExamController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Request.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Request.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Response$ResponseBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Response$ResponseBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto$Response.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/dto/ExamDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$ExamBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$ExamBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$ExamType.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$ExamType.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$Status.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam$Status.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/entity/Exam.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/service/ExamService.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/com/edulink/exam/service/ExamService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/dto/AuthDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/dto/AuthDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/service/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/service/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/controller/AuthController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/dto/AuthDto$AuthResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/dto/AuthDto$AuthResponse.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/dto/AuthDto.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/dto/AuthDto.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/service/AuthService.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/service/AuthService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/dto/LearningMaterialDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/dto/LearningMaterialDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/entity/LearningMaterial.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/entity/LearningMaterial.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/exception/GlobalExceptionHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/exception/GlobalExceptionHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/service/LearningService.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/service/LearningService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Request.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Request.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Response$ResponseBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Response$ResponseBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Response.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/dto/LearningMaterialDto$Response.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial$LearningMaterialBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial$LearningMaterialBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial$Status.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial$Status.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/entity/LearningMaterial.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler$ErrorResponse$ErrorResponseBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler$ErrorResponse$ErrorResponseBuilder.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler$ErrorResponse.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler$ErrorResponse.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/exception/GlobalExceptionHandler.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/service/LearningService.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/service/LearningService.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/notification-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/notification-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/notification-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/notification-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/reporting-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/reporting-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/reporting-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/reporting-service/target/classes/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/src/main/java/com/edulink/student/controller/StudentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/src/main/java/com/edulink/student/controller/StudentController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/application.properties" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -19,18 +88,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "LikhithaPenumudi"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;LikhithaPenumudi&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/SivaMusada/EduLink.git",
-    "accountId": "0876ecc7-bddb-4db6-9c38-23bea03c35b6"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/SivaMusada/EduLink.git&quot;,
+    &quot;accountId&quot;: &quot;0876ecc7-bddb-4db6-9c38-23bea03c35b6&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 5
@@ -44,7 +113,18 @@
   "keyToString": {
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "Spring Boot.ApiGatewayApplication.executor": "Run",
+    "Spring Boot.AttendanceServiceApplication.executor": "Run",
+    "Spring Boot.CourseServiceApplication.executor": "Run",
+    "Spring Boot.EurekaServerApplication.executor": "Run",
+    "Spring Boot.ExamServiceApplication.executor": "Run",
+    "Spring Boot.IdentityServiceApplication.executor": "Run",
+    "Spring Boot.LearningServiceApplication.executor": "Run",
+    "Spring Boot.NotificationServiceApplication.executor": "Run",
+    "Spring Boot.ReportingServiceApplication.executor": "Run",
+    "Spring Boot.StudentServiceApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/2478116/EduLink",
@@ -53,6 +133,178 @@
     "project.structure.side.proportion": "0.0"
   }
 }]]></component>
+  <component name="RunManager" selected="Spring Boot.ExamServiceApplication">
+    <configuration name="Service" type="CompoundRunConfigurationType">
+      <toRun name="AttendanceServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="CourseServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="ExamServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="IdentityServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="LearningServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="ReportingServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <toRun name="StudentServiceApplication" type="SpringBootApplicationConfigurationType" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ApiGatewayApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="api-gateway" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.gateway.ApiGatewayApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.gateway.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="AttendanceServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="attendance-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.attendance.AttendanceServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.attendance.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="CourseServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="course-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.course.CourseServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.course.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="EurekaServerApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" temporary="true" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="eureka-server" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.eureka.EurekaServerApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.eureka.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ExamServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="exam-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.exam.ExamServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.exam.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="IdentityServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="identity-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.identity.IdentityServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.identity.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="LearningServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="learning-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.learning.LearningServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.learning.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="NotificationServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="notification-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.notification.NotificationServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.notification.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="ReportingServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="reporting-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.reporting.ReportingServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.reporting.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="StudentServiceApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UnknownPolicyInFreeMode" />
+      <module name="student-service" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.edulink.student.StudentServiceApplication" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.edulink.student.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Compound.Service" />
+      <item itemvalue="Spring Boot.AttendanceServiceApplication" />
+      <item itemvalue="Spring Boot.CourseServiceApplication" />
+      <item itemvalue="Spring Boot.ExamServiceApplication" />
+      <item itemvalue="Spring Boot.IdentityServiceApplication" />
+      <item itemvalue="Spring Boot.LearningServiceApplication" />
+      <item itemvalue="Spring Boot.NotificationServiceApplication" />
+      <item itemvalue="Spring Boot.ReportingServiceApplication" />
+      <item itemvalue="Spring Boot.StudentServiceApplication" />
+      <item itemvalue="Spring Boot.EurekaServerApplication" />
+      <item itemvalue="Spring Boot.ApiGatewayApplication" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Spring Boot.ApiGatewayApplication" />
+        <item itemvalue="Spring Boot.EurekaServerApplication" />
+      </list>
+    </recent_temporary>
+  </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

@@ -61,18 +61,18 @@ import { ToastService } from '../../services/toast.service';
             <div class="d-flex align-items-start gap-3">
               <div class="rounded d-flex align-items-center justify-content-center"
                 style="width:48px;height:48px;min-width:48px;font-size:1.6rem;background:var(--bg-secondary)">
-                {{ fileIcon(m.fileUri) }}
+                {{ fileIcon(m) }}
               </div>
               <div class="flex-grow-1 overflow-hidden">
                 <div class="fw-semibold text-truncate" style="color:var(--text-primary)">{{ m.title }}</div>
                 <div class="text-muted small">{{ courseName(m.courseId) }}</div>
                 <div class="text-muted small">{{ m.uploadedDate }}</div>
-                <div class="text-muted small" *ngIf="m.fileUri">{{ fileType(m.fileUri) }}</div>
+                <div class="text-muted small" *ngIf="m.fileUri">{{ fileType(m) }}</div>
               </div>
               <span class="badge" [ngClass]="m.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ m.status }}</span>
             </div>
             <div class="d-flex gap-2 mt-3">
-              <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="openFile(m.fileUri)" *ngIf="m.fileUri">
+              <button class="btn btn-sm btn-outline-primary flex-grow-1" (click)="openFile(m)" *ngIf="m.fileUri">
                 {{ isBase64(m.fileUri) ? '⬇️ Download' : '🔗 Open' }}
               </button>
               <button class="btn btn-sm btn-outline-secondary" (click)="edit(m)">Edit</button>
@@ -128,7 +128,7 @@ import { ToastService } from '../../services/toast.service';
                   </div>
 
                   <div *ngIf="selectedFile" class="d-flex align-items-center gap-3 justify-content-center">
-                    <span style="font-size:2rem">{{ fileIcon('.' + selectedFile.name.split('.').pop()) }}</span>
+                    <span style="font-size:2rem">{{ fileIcon({mimeType: selectedFile.type}) }}</span>
                     <div class="text-start">
                       <div class="fw-semibold" style="color:var(--text-primary)">{{ selectedFile.name }}</div>
                       <div class="text-muted small">{{ formatSize(selectedFile.size) }}</div>
@@ -153,10 +153,10 @@ import { ToastService } from '../../services/toast.service';
               <!-- Edit mode: show current file info -->
               <div class="mb-3 p-3 rounded" style="background:var(--bg-secondary)" *ngIf="editId && form.fileUri">
                 <div class="d-flex align-items-center gap-2">
-                  <span style="font-size:1.5rem">{{ fileIcon(form.fileUri) }}</span>
+                  <span style="font-size:1.5rem">{{ fileIcon(form) }}</span>
                   <div>
                     <div class="small fw-semibold" style="color:var(--text-primary)">Current file attached</div>
-                    <div class="text-muted small">{{ fileType(form.fileUri) }}</div>
+                    <div class="text-muted small">{{ fileType(form) }}</div>
                   </div>
                 </div>
               </div>
@@ -283,11 +283,14 @@ export class TeacherMaterialsComponent implements OnInit {
       this.uploadProgress = 95;
       this.cdr.detectChanges();
 
-      const base64 = reader.result as string; // full data URL: data:application/pdf;base64,...
+      const dataUrl = reader.result as string;
+      const mimeType = dataUrl.split(';')[0].replace('data:', '');
+      const base64 = dataUrl.split(',')[1]; // raw base64 only, no data URL prefix
       const payload = {
         courseId: +this.form.courseId,
         title: this.form.title,
         fileUri: base64,
+        mimeType: mimeType,
         uploadedDate: new Date().toISOString().split('T')[0],
         status: this.form.status || 'ACTIVE'
       };
@@ -303,10 +306,10 @@ export class TeacherMaterialsComponent implements OnInit {
             this.ngOnInit();
           }, 300);
         },
-        error: () => {
+        error: (err) => {
           this.uploading = false;
           this.uploadProgress = 0;
-          this.toast.show('Upload failed', 'error');
+          this.toast.show(err?.error?.message || err?.message || 'Upload failed', 'error');
           this.cdr.detectChanges();
         }
       });
@@ -336,52 +339,44 @@ export class TeacherMaterialsComponent implements OnInit {
     });
   }
 
-  openFile(fileUri: string): void {
-    if (!fileUri) return;
-    if (this.isBase64(fileUri)) {
-      // base64 — trigger download
-      const a = document.createElement('a');
-      a.href = fileUri;
-      const ext = fileUri.split(';')[0].split('/')[1] || 'file';
-      a.download = `material.${ext}`;
-      a.click();
-    } else {
-      window.open(fileUri, '_blank');
-    }
+  openFile(m: any): void {
+    if (!m.fileUri) return;
+    const mime = m.mimeType || 'application/octet-stream';
+    const byteChars = atob(m.fileUri);
+    const byteArr = new Uint8Array(byteChars.length);
+    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
+    const blob = new Blob([byteArr], { type: mime });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
   }
 
-  isBase64(uri: string): boolean { return uri?.startsWith('data:'); }
+  isBase64(uri: string): boolean { return !!uri && !uri.startsWith('http'); }
 
-  fileIcon(uri: string): string {
-    if (!uri) return '📄';
-    const lower = uri.toLowerCase();
-    if (lower.includes('pdf') || lower.endsWith('.pdf')) return '📕';
-    if (lower.includes('video') || lower.includes('mp4') || lower.endsWith('.mp4')) return '🎬';
-    if (lower.includes('audio') || lower.includes('mp3') || lower.endsWith('.mp3')) return '🎵';
-    if (lower.includes('image') || lower.includes('png') || lower.includes('jpg') || lower.includes('jpeg')) return '🖼️';
-    if (lower.includes('word') || lower.includes('doc')) return '📝';
-    if (lower.includes('presentation') || lower.includes('ppt')) return '📊';
+  fileIcon(m: any): string {
+    const mime = m?.mimeType || m || '';
+    if (mime.includes('pdf')) return '📕';
+    if (mime.includes('video') || mime.includes('mp4')) return '🎬';
+    if (mime.includes('audio') || mime.includes('mp3')) return '🎵';
+    if (mime.includes('image')) return '🖼️';
+    if (mime.includes('word') || mime.includes('doc')) return '📝';
+    if (mime.includes('presentation') || mime.includes('ppt')) return '📊';
     return '📄';
   }
 
-  fileType(uri: string): string {
-    if (!uri) return '';
-    if (uri.startsWith('data:')) {
-      const mime = uri.split(';')[0].replace('data:', '');
-      const map: Record<string, string> = {
-        'application/pdf': 'PDF Document',
-        'video/mp4': 'MP4 Video',
-        'audio/mpeg': 'MP3 Audio',
-        'image/png': 'PNG Image',
-        'image/jpeg': 'JPEG Image',
-        'application/msword': 'Word Document',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
-        'application/vnd.ms-powerpoint': 'PowerPoint',
-        'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint',
-      };
-      return map[mime] || mime;
-    }
-    return 'External Link';
+  fileType(m: any): string {
+    const mime = m?.mimeType || m || '';
+    const map: Record<string, string> = {
+      'application/pdf': 'PDF Document',
+      'video/mp4': 'MP4 Video',
+      'audio/mpeg': 'MP3 Audio',
+      'image/png': 'PNG Image',
+      'image/jpeg': 'JPEG Image',
+      'application/msword': 'Word Document',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word Document',
+      'application/vnd.ms-powerpoint': 'PowerPoint',
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'PowerPoint',
+    };
+    return map[mime] || mime || 'File';
   }
 
   formatSize(bytes: number): string {

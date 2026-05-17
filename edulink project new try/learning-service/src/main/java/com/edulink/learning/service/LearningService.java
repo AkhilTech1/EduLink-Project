@@ -33,6 +33,7 @@ public class LearningService {
                 .courseId(request.getCourseId())
                 .title(request.getTitle())
                 .fileUri(request.getFileUri())
+                .mimeType(request.getMimeType())
                 .uploadedDate(parseDate(request.getUploadedDate()))
                 .status(LearningMaterial.Status.valueOf(request.getStatus() != null ? request.getStatus() : "ACTIVE"))
                 .build();
@@ -45,6 +46,7 @@ public class LearningService {
         m.setCourseId(request.getCourseId());
         m.setTitle(request.getTitle());
         if (request.getFileUri() != null) m.setFileUri(request.getFileUri());
+        if (request.getMimeType() != null) m.setMimeType(request.getMimeType());
         m.setUploadedDate(parseDate(request.getUploadedDate()));
         m.setStatus(LearningMaterial.Status.valueOf(request.getStatus() != null ? request.getStatus() : "ACTIVE"));
         return LearningMaterialDto.Response.from(materialRepository.save(m));

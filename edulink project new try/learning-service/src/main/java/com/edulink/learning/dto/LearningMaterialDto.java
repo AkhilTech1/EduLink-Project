@@ -12,6 +12,7 @@ public class LearningMaterialDto {
         private Long courseId;
         private String title;
         private String fileUri;
+        private String mimeType;
         private String uploadedDate;
         private String status;
     }
@@ -23,6 +24,7 @@ public class LearningMaterialDto {
         private Long courseId;
         private String title;
         private String fileUri;
+        private String mimeType;
         private LocalDate uploadedDate;
         private String status;
 
@@ -32,6 +34,7 @@ public class LearningMaterialDto {
                     .courseId(m.getCourseId())
                     .title(m.getTitle())
                     .fileUri(m.getFileUri())
+                    .mimeType(m.getMimeType())
                     .uploadedDate(m.getUploadedDate())
                     .status(m.getStatus().name())
                     .build();

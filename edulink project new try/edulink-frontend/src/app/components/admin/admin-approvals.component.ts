@@ -203,8 +203,17 @@ export class AdminApprovalsComponent implements OnInit {
     });
   }
 
-  previewFile(data: string, type: string, which: string): void {
-    this.previewType = this.previewType === which ? '' : which;
+  openFile(data: string, type: string): void {
+    const blob = this.b64toBlob(data, type);
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  }
+
+  private b64toBlob(b64: string, type: string): Blob {
+    const bytes = atob(b64);
+    const arr = new Uint8Array(bytes.length);
+    for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+    return new Blob([arr], { type });
   }
 
   downloadFile(data: string, type: string, fileName: string): void {

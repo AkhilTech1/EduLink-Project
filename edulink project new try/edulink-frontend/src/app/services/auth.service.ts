@@ -45,6 +45,7 @@ export class AuthService {
   getUsers(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/users`); }
   getUserById(id: number): Observable<User> { return this.http.get<User>(`${this.base}/users/${id}`); }
   updateUser(id: number, data: any): Observable<User> { return this.http.put<User>(`${this.base}/users/${id}`, data); }
+  updatePassword(id: number, newPassword: string): Observable<any> { return this.http.put<any>(`${this.base}/users/${id}/password`, { newPassword }); }
   deleteUser(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/users/${id}`); }
   getAuditLogs(): Observable<any[]> { return this.http.get<any[]>(`${this.base}/audit-logs`); }
 

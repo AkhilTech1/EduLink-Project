@@ -45,12 +45,6 @@ import { AuthService } from '../../services/auth.service';
             <div class="fw-bold" style="font-size:1.8rem;" [ngStyle]="{'color': avgAttendance>=75?'#10b981':'#ef4444'}">{{ avgAttendance }}%</div>
           </div>
         </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-card text-center">
-            <div class="text-muted small mb-1">Avg Score</div>
-            <div class="fw-bold" style="font-size:1.8rem;color:#f59e0b">{{ avgScore }}%</div>
-          </div>
-        </div>
       </div>
 
       <!-- Grade Breakdown Cards -->
@@ -81,7 +75,7 @@ import { AuthService } from '../../services/auth.service';
       <div class="table-wrapper" *ngIf="myGrades.length > 0">
         <table class="table table-hover mb-0">
           <thead>
-            <tr><th>Name</th><th>Grade</th><th>Course</th><th>Contact</th><th>Attendance</th><th>Avg Score</th><th>Status</th></tr>
+            <tr><th>Name</th><th>Grade</th><th>Course</th><th>Contact</th><th>Attendance</th><th>Status</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let s of filtered">
@@ -98,7 +92,6 @@ import { AuthService } from '../../services/auth.service';
                   <span class="small" [ngStyle]="{'color': s.attendancePct>=75?'#10b981':'#ef4444'}">{{ s.attendancePct }}%</span>
                 </div>
               </td>
-              <td><span class="fw-semibold" [ngStyle]="{'color': s.avgScore>=60?'#10b981':'#ef4444'}">{{ s.avgScore > 0 ? s.avgScore + '%' : '—' }}</span></td>
               <td>
                 <span class="badge" [ngClass]="s.attendancePct > 0 && s.attendancePct < 75 ? 'bg-warning text-dark' : 'bg-success'">
                   {{ s.attendancePct > 0 && s.attendancePct < 75 ? 'Low Attendance' : 'Active' }}
@@ -106,7 +99,7 @@ import { AuthService } from '../../services/auth.service';
               </td>
             </tr>
             <tr *ngIf="filtered.length === 0 && myGrades.length > 0">
-              <td colspan="7" class="text-center text-muted py-4">No students found</td>
+              <td colspan="6" class="text-center text-muted py-4">No students found</td>
             </tr>
           </tbody>
         </table>

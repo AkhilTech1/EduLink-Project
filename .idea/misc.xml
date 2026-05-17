@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/edulink project new try/attendance-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/course-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/exam-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/identity-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/learning-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/notification-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/reporting-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/student-service/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/eureka-server/pom.xml" />
+        <option value="$PROJECT_DIR$/edulink project new try/api-gateway/pom.xml" />
+      </list>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="ms-21" project-jdk-type="JavaSDK" />
 </project>

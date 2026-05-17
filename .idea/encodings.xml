@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/edulink project new try/api-gateway/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/attendance-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/course-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/eureka-server/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/exam-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/identity-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/learning-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/notification-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/reporting-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/edulink project new try/student-service/src/main/java" charset="UTF-8" />
+  </component>
+</project>

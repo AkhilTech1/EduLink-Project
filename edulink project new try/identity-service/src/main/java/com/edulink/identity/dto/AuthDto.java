@@ -60,6 +60,11 @@ public class AuthDto {
     }
 
     @Data
+    public static class ChangePasswordRequest {
+        private String newPassword;
+    }
+
+    @Data
     public static class AuthResponse {
         private String token;
         private String role;

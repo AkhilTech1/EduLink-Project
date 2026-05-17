@@ -54,8 +54,7 @@ import { ToastService } from '../../services/toast.service';
             </div>
 
             <div class="d-flex justify-content-between align-items-center">
-              <div class="text-muted small">{{ enrollmentCount(cl.classId) }} students enrolled</div>
-              <button class="btn btn-sm btn-outline-primary" (click)="openEdit(cl)">Edit Schedule</button>
+              <span class="badge" [ngClass]="cl.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ cl.status }}</span>
             </div>
           </div>
         </div>

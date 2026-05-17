@@ -64,8 +64,8 @@ import { ApiService } from '../../services/api.service';
                 <div class="text-white" style="font-size:0.65rem">{{ e.date | date:'MMM' }}</div>
               </div>
               <div>
-                <div class="small fw-semibold" style="color:var(--text-primary)">{{ e.type }} — Course {{ e.courseId }}</div>
-                <div class="text-muted" style="font-size:0.72rem">{{ e.date }}</div>
+                <div class="small fw-semibold" style="color:var(--text-primary)">{{ e.title || e.type }} — {{ e.gradeLevel }}</div>
+                <div class="text-muted" style="font-size:0.72rem">Deadline: {{ e.deadline ? (e.deadline | date:'dd MMM, hh:mm a') : (e.date | date:'mediumDate') }}</div>
               </div>
             </div>
             <a routerLink="/student/exams" class="btn btn-sm w-100 mt-2" style="background:var(--bg-secondary);color:var(--accent)">View all exams</a>
@@ -206,60 +206,70 @@ export class StudentDashboardComponent implements OnInit {
   load(): void {
     this.auth.getMe().pipe(catchError(() => of(null))).subscribe(user => {
       if (!user) return;
-      forkJoin({
-        enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
-        courses: this.api.getCourses().pipe(catchError(() => of([]))),
-        exams: this.api.getExamsByStudent(user.userId).pipe(catchError(() => of([]))),
-        grades: this.api.getGrades().pipe(catchError(() => of([]))),
-        notifications: this.api.getNotificationsByUser(user.userId).pipe(catchError(() => of([]))),
-        assignments: this.api.getAssignments().pipe(catchError(() => of([]))),
-      }).subscribe(d => {
-        const allCourses = d.courses as any[];
-        const enrollments = d.enrollments as any[];
-        const enrolledIds = new Set(enrollments.filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
-        this.courses = allCourses.filter(c => enrolledIds.has(c.courseId));
+      // get real studentId from student-service (same as exams component)
+      this.api.getMyStudent().pipe(catchError(() => of(null))).subscribe((student: any) => {
+        const gradeLevel = (user as any).gradeLevel || '';
+        const studentId = student?.studentId
+          ? student.studentId
+          : null; // will be resolved from enrollments below
 
-        this.grades = d.grades as any[];
-        this.upcomingExams = (d.exams as any[]).filter(e => e.status === 'SCHEDULED').sort((a: any, b: any) => a.date > b.date ? 1 : -1);
+        forkJoin({
+          enrollments: this.api.getMyEnrollments().pipe(catchError(() => of([]))),
+          courses: this.api.getCourses().pipe(catchError(() => of([]))),
+          grades: this.api.getGrades().pipe(catchError(() => of([]))),
+        }).subscribe(d => {
+          const enrollments = d.enrollments as any[];
+          // prefer studentId from getMyStudent(), fallback to enrollments
+          const resolvedStudentId = studentId || enrollments[0]?.studentId;
 
-        this.passed = this.grades.filter(g => g.status === 'PASS').length;
-        this.failed = this.grades.filter(g => g.status === 'FAIL').length;
-        this.avgScore = this.grades.length ? Math.round(this.grades.reduce((a, g) => a + g.score, 0) / this.grades.length) : 0;
+          const enrolledIds = new Set(enrollments.filter(e => e.status?.toUpperCase() === 'ACTIVE').map((e: any) => e.courseId));
+          this.courses = (d.courses as any[]).filter(c => enrolledIds.has(c.courseId));
+          this.grades = d.grades as any[];
+          this.passed = this.grades.filter(g => g.status === 'PASS').length;
+          this.failed = this.grades.filter(g => g.status === 'FAIL').length;
+          this.avgScore = this.grades.length ? Math.round(this.grades.reduce((a, g) => a + g.score, 0) / this.grades.length) : 0;
+          const gc: Record<string, number> = {};
+          this.grades.forEach(g => { gc[g.grade] = (gc[g.grade] || 0) + 1; });
+          const colors: Record<string, string> = { A: '#10b981', B: '#4f46e5', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
+          this.gradeBreakdown = Object.entries(gc).map(([grade, count]) => ({
+            grade, count, pct: this.grades.length ? Math.round((count / this.grades.length) * 100) : 0, color: colors[grade] || '#adb5bd'
+          }));
 
-        const gc: Record<string, number> = {};
-        this.grades.forEach(g => { gc[g.grade] = (gc[g.grade] || 0) + 1; });
-        const colors: Record<string, string> = { A: '#10b981', B: '#4f46e5', C: '#f59e0b', D: '#f97316', F: '#ef4444' };
-        this.gradeBreakdown = Object.entries(gc).map(([grade, count]) => ({
-          grade, count, pct: this.grades.length ? Math.round((count / this.grades.length) * 100) : 0, color: colors[grade] || '#adb5bd'
-        }));
+          const unattempted$ = resolvedStudentId && gradeLevel
+            ? this.api.getUnattemptedExams(resolvedStudentId, gradeLevel).pipe(catchError(() => of([])))
+            : of([]);
 
-        // Load attendance using the correct studentId from enrollments
-        const studentId = enrollments[0]?.studentId;
-        if (studentId) {
-          this.api.getAttendanceByStudent(studentId).pipe(catchError(() => of([]))).subscribe((att: any[]) => {
-            this.attendance = att;
-            this.present = att.filter(a => a.status === 'PRESENT').length;
-            this.absent = att.filter(a => a.status === 'ABSENT').length;
-            this.attendancePct = att.length ? Math.round((this.present / att.length) * 100) : 0;
-            this.kpis = [
-              { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
-              { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Scheduled', path: '/student/exams' },
-              { label: 'Attendance', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: this.attendancePct < 75 ? 'Below threshold' : 'Good standing', path: '/student/attendance' },
-              { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
-            ];
-            this.cdr.detectChanges();
+          unattempted$.subscribe((exams: any[]) => {
+            this.upcomingExams = exams.map(e => {
+              try { const p = JSON.parse(e.questions); return { ...e, title: p.title || e.type }; } catch { return e; }
+            });
+
+            if (resolvedStudentId) {
+              this.api.getAttendanceByStudent(resolvedStudentId).pipe(catchError(() => of([]))).subscribe((att: any[]) => {
+                this.attendance = att;
+                this.present = att.filter(a => a.status === 'PRESENT').length;
+                this.absent = att.filter(a => a.status === 'ABSENT').length;
+                this.attendancePct = att.length ? Math.round((this.present / att.length) * 100) : 0;
+                this.buildKpis();
+                this.cdr.detectChanges();
+              });
+            } else {
+              this.buildKpis();
+              this.cdr.detectChanges();
+            }
           });
-        } else {
-          this.kpis = [
-            { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
-            { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Scheduled', path: '/student/exams' },
-            { label: 'Attendance', value: '0%', icon: '📋', color: '#ef4444', sub: 'No records', path: '/student/attendance' },
-            { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
-          ];
-          this.cdr.detectChanges();
-        }
+        });
       });
     });
+  }
+
+  buildKpis(): void {
+    this.kpis = [
+      { label: 'Enrolled Courses', value: this.courses.length, icon: '📚', color: '#4f46e5', sub: `${this.courses.length} active`, path: '/student/courses' },
+      { label: 'Upcoming Exams', value: this.upcomingExams.length, icon: '📝', color: '#f59e0b', sub: 'Not attempted', path: '/student/exams' },
+      { label: 'Attendance', value: this.attendancePct + '%', icon: '📋', color: this.attendancePct >= 75 ? '#10b981' : '#ef4444', sub: this.attendancePct < 75 ? 'Below threshold' : 'Good standing', path: '/student/attendance' },
+      { label: 'Avg Score', value: this.avgScore + '%', icon: '🏆', color: '#10b981', sub: `${this.passed} passed`, path: '/student/grades' },
+    ];
   }
 
   catIcon(cat: string): string {

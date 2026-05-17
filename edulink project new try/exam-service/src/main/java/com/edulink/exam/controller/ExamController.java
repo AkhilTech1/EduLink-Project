@@ -34,6 +34,14 @@ public class ExamController {
         return ResponseEntity.ok(examService.getExamsByGrade(gradeLevel));
     }
 
+    @GetMapping("/api/exams/student/{studentId}/unattempted")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
+    public ResponseEntity<List<ExamDto.Response>> getUnattemptedExams(
+            @PathVariable Long studentId,
+            @RequestParam String gradeLevel) {
+        return ResponseEntity.ok(examService.getUnattemptedExamsByStudent(studentId, gradeLevel));
+    }
+
     @GetMapping("/api/exams/student/{studentId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER', 'STUDENT')")
     public ResponseEntity<List<ExamDto.Response>> getExamsByStudent(@PathVariable Long studentId) {
@@ -53,7 +61,7 @@ public class ExamController {
     }
 
     @DeleteMapping("/api/exams/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     public ResponseEntity<Void> deleteExam(@PathVariable Long id) {
         examService.deleteExam(id); return ResponseEntity.noContent().build();
     }

@@ -20,7 +20,6 @@ import { TeacherPerformanceComponent } from './components/teacher/teacher-perfor
 import { TeacherDashboardComponent } from './components/teacher/teacher-dashboard.component';
 import { TeacherStudentsComponent } from './components/teacher/teacher-students.component';
 import { TeacherScheduleComponent } from './components/teacher/teacher-schedule.component';
-import { TeacherGradesComponent } from './components/teacher/teacher-grades.component';
 import { TeacherExamsComponent } from './components/teacher/teacher-exams.component';
 import { StudentDashboardComponent } from './components/student/student-dashboard.component';
 import { StudentProfileComponent } from './components/student/student-profile.component';
@@ -61,10 +60,6 @@ export const routes: Routes = [
       { path: 'teacher/materials', component: TeacherMaterialsComponent },
       { path: 'teacher/exams', component: TeacherExamsComponent },
       { path: 'teacher/attendance', component: AdminAttendanceComponent },
-      { path: 'teacher/students', component: TeacherStudentsComponent },
-      { path: 'teacher/performance', component: TeacherPerformanceComponent },
-      { path: 'teacher/schedule', component: TeacherScheduleComponent },
-      { path: 'teacher/grades', component: TeacherGradesComponent },
       { path: 'student/dashboard', component: StudentDashboardComponent },
       { path: 'student/profile', component: StudentProfileComponent },
       { path: 'student/courses', component: StudentCoursesComponent },

@@ -32,6 +32,7 @@ import { ToastService } from '../../services/toast.service';
               </td>
               <td>
                 <button class="btn btn-sm btn-outline-primary me-1" (click)="edit(u)">Edit</button>
+                <button class="btn btn-sm btn-outline-warning me-1" (click)="openPasswordModal(u)">Reset Password</button>
                 <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(u)">Delete</button>
               </td>
             </tr>
@@ -52,7 +53,7 @@ import { ToastService } from '../../services/toast.service';
             <div class="modal-body">
               <div class="mb-3" *ngIf="!editId"><label>Full Name</label><input class="form-control mt-1" [(ngModel)]="form.name" placeholder="Full name"></div>
               <div class="mb-3" *ngIf="!editId"><label>Email</label><input type="email" class="form-control mt-1" [(ngModel)]="form.email" placeholder="Email"></div>
-              <div class="mb-3"><label>Phone</label><input class="form-control mt-1" [(ngModel)]="form.phone" placeholder="Phone"></div>
+              <div class="mb-3" *ngIf="!editId"><label>Phone</label><input class="form-control mt-1" [(ngModel)]="form.phone" placeholder="Phone"></div>
               <div class="mb-3" *ngIf="!editId"><label>Password</label><input type="password" class="form-control mt-1" [(ngModel)]="form.password" placeholder="Password"></div>
               <div class="mb-3" *ngIf="!editId">
                 <label>Role</label>
@@ -66,6 +67,10 @@ import { ToastService } from '../../services/toast.service';
                 <input class="form-control mt-1" [(ngModel)]="form.name" placeholder="Full name">
               </div>
               <div class="mb-3" *ngIf="editId">
+                <label>Phone</label>
+                <input class="form-control mt-1" [(ngModel)]="form.phone" placeholder="Phone number">
+              </div>
+              <div class="mb-3" *ngIf="editId">
                 <label>Status</label>
                 <select class="form-select mt-1" [(ngModel)]="form.status">
                   <option value="ACTIVE">ACTIVE</option>
@@ -76,6 +81,32 @@ import { ToastService } from '../../services/toast.service';
             <div class="modal-footer border-0">
               <button class="btn btn-secondary" (click)="showModal=false">Cancel</button>
               <button class="btn-accent" (click)="save()">{{ editId ? 'Update' : 'Register' }}</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal d-block" *ngIf="passwordTarget" style="background:rgba(0,0,0,0.5)">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content p-4">
+            <div class="modal-header border-0 pb-0">
+              <h5 class="fw-bold" style="color:var(--text-primary)">Reset Password — {{ passwordTarget?.name }}</h5>
+              <button class="btn-close" (click)="closePasswordModal()"></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label>New Password</label>
+                <input type="password" class="form-control mt-1" [(ngModel)]="pwForm.newPassword" placeholder="Enter new password">
+              </div>
+              <div class="mb-3">
+                <label>Confirm Password</label>
+                <input type="password" class="form-control mt-1" [(ngModel)]="pwForm.confirmPassword" placeholder="Confirm new password">
+              </div>
+              <div class="text-danger small" *ngIf="pwMismatch">Passwords do not match</div>
+            </div>
+            <div class="modal-footer border-0">
+              <button class="btn btn-secondary" (click)="closePasswordModal()">Cancel</button>
+              <button class="btn btn-warning" (click)="savePassword()">Update Password</button>
             </div>
           </div>
         </div>
@@ -121,6 +152,9 @@ export class AdminUsersComponent implements OnInit {
   form: any = {};
   deleteTarget: any = null;
   deleting = false;
+  passwordTarget: any = null;
+  pwForm = { newPassword: '', confirmPassword: '' };
+  pwMismatch = false;
 
   constructor(private auth: AuthService, private toast: ToastService, private cdr: ChangeDetectorRef) {}
 
@@ -140,6 +174,26 @@ export class AdminUsersComponent implements OnInit {
     this.editId = u.userId;
     this.form = { name: u.name, phone: u.phone, status: u.status };
     this.showModal = true;
+  }
+
+  openPasswordModal(u: any): void {
+    this.passwordTarget = u;
+    this.pwForm = { newPassword: '', confirmPassword: '' };
+    this.pwMismatch = false;
+  }
+
+  closePasswordModal(): void {
+    this.passwordTarget = null;
+    this.pwMismatch = false;
+  }
+
+  savePassword(): void {
+    this.pwMismatch = this.pwForm.newPassword !== this.pwForm.confirmPassword;
+    if (this.pwMismatch || !this.pwForm.newPassword.trim()) return;
+    this.auth.updatePassword(this.passwordTarget.userId, this.pwForm.newPassword).subscribe({
+      next: () => { this.toast.show('Password updated successfully', 'success'); this.closePasswordModal(); },
+      error: () => this.toast.show('Failed to update password', 'error')
+    });
   }
 
   confirmDelete(u: any): void {

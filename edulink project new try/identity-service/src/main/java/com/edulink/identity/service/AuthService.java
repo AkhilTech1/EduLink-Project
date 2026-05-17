@@ -204,7 +204,16 @@ public class AuthService {
         user.setName(request.getName());
         user.setPhone(request.getPhone());
         if (request.getStatus() != null) user.setStatus(User.Status.valueOf(request.getStatus()));
+        if (request.getPassword() != null && !request.getPassword().isBlank())
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
         return UserDto.Response.fromWithoutFiles(userRepository.save(user));
+    }
+
+    public void changePassword(Long id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public List<AuditLogDto.Response> getAuditLogs() {

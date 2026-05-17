@@ -33,9 +33,7 @@ public class StudentController {
     @PreAuthorize("hasRole('STUDENT')")
     public ResponseEntity<StudentDto.Response> getMe(
             org.springframework.security.core.Authentication authentication) {
-        String subject = authentication.getName();
-        Long userId;
-        try { userId = Long.parseLong(subject); } catch (Exception e) { userId = null; }
+        Long userId = (Long) authentication.getCredentials();
         return ResponseEntity.ok(studentService.getStudentByUserId(userId));
     }
 

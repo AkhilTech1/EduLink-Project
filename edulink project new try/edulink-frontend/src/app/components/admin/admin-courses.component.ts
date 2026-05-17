@@ -51,7 +51,7 @@ import { catchError, of } from 'rxjs';
         <div class="table-wrapper">
           <table class="table table-hover mb-0">
             <thead>
-              <tr><th>Title</th><th>Subject</th><th>Grade Level</th><th>Credits</th><th>Classes</th><th>Status</th><th *ngIf="canEdit">Actions</th></tr>
+              <tr><th>Title</th><th>Subject</th><th>Grade Level</th><th>Credits</th><th>Classes</th><th>Status</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let c of filteredCourses">
@@ -61,10 +61,6 @@ import { catchError, of } from 'rxjs';
                 <td>{{ c.credits }}</td>
                 <td><span class="badge bg-secondary">{{ classCount(c.courseId) }}</span></td>
                 <td><span class="badge" [ngClass]="c.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ c.status }}</span></td>
-                <td *ngIf="canEdit">
-                  <button class="btn btn-sm btn-outline-primary me-1" (click)="edit(c)">Edit</button>
-                  <button class="btn btn-sm btn-outline-danger" *ngIf="role==='ADMIN'" (click)="delete(c.courseId)">Delete</button>
-                </td>
               </tr>
               <tr *ngIf="filteredCourses.length===0"><td colspan="7" class="text-center text-muted py-4">No courses found</td></tr>
             </tbody>
@@ -76,7 +72,7 @@ import { catchError, of } from 'rxjs';
         <div class="table-wrapper">
           <table class="table table-hover mb-0">
             <thead>
-              <tr><th>Class ID</th><th>Course</th><th>Teacher Name</th><th>Schedule</th><th>Status</th><th *ngIf="canEdit">Actions</th></tr>
+              <tr><th>Class ID</th><th>Course</th><th>Teacher Name</th><th>Schedule</th><th>Status</th></tr>
             </thead>
             <tbody>
               <tr *ngFor="let cl of classes">
@@ -91,9 +87,6 @@ import { catchError, of } from 'rxjs';
                 </td>
                 <td>{{ cl.schedule }}</td>
                 <td><span class="badge" [ngClass]="cl.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ cl.status }}</span></td>
-                <td *ngIf="canEdit">
-                  <button class="btn btn-sm btn-outline-danger" (click)="deleteClass(cl.classId)">Delete</button>
-                </td>
               </tr>
               <tr *ngIf="classes.length===0"><td colspan="6" class="text-center text-muted py-4">No classes found</td></tr>
             </tbody>

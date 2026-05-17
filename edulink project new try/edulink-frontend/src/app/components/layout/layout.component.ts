@@ -161,7 +161,6 @@ export class LayoutComponent implements OnInit {
       { path: '/teacher/schedule', label: 'Schedule', icon: '🗓️' },
       { path: '/teacher/materials', label: 'Materials', icon: '📄' },
       { path: '/teacher/exams', label: 'Exams & Grades', icon: '📝' },
-      { path: '/teacher/grades', label: 'Grades', icon: '🏆' },
       { path: '/teacher/attendance', label: 'Attendance', icon: '📋' },
       { path: '/teacher/performance', label: 'Performance', icon: '📈' },
     ],
