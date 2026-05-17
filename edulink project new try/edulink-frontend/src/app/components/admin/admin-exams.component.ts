@@ -83,8 +83,8 @@ import { AuthService } from '../../services/auth.service';
                 <td>{{ e.date }}</td>
                 <td>
                   <span class="badge"
-                    [ngClass]="e.status==='SCHEDULED'?'bg-primary':e.status==='COMPLETED'?'bg-success':e.status==='ONGOING'?'bg-warning text-dark':'bg-secondary'">
-                    {{ e.status }}
+                    [ngClass]="computeStatus(e)==='SCHEDULED'?'bg-primary':computeStatus(e)==='COMPLETED'?'bg-success':computeStatus(e)==='ONGOING'?'bg-warning text-dark':'bg-secondary'">
+                    {{ computeStatus(e) }}
                   </span>
                 </td>
                 <td>{{ gradeCount(e.examId) }}</td>
@@ -159,8 +159,8 @@ export class AdminExamsComponent implements OnInit {
       this.grades = d.grades;
       this.filteredExams = d.exams;
       this.filteredGrades = d.grades;
-      this.scheduledCount = d.exams.filter((e: any) => e.status === 'SCHEDULED').length;
-      this.completedCount = d.exams.filter((e: any) => e.status === 'COMPLETED').length;
+      this.scheduledCount = d.exams.filter((e: any) => this.computeStatus(e) === 'SCHEDULED').length;
+      this.completedCount = d.exams.filter((e: any) => this.computeStatus(e) === 'COMPLETED').length;
       this.cdr.detectChanges();
     });
   }
@@ -168,7 +168,7 @@ export class AdminExamsComponent implements OnInit {
   applyExamFilter(): void {
     this.filteredExams = this.exams.filter((e: any) => {
       const ms = !this.examSearch || String(e.examId).includes(this.examSearch) || String(e.courseId).includes(this.examSearch);
-      const mst = !this.examStatusFilter || e.status === this.examStatusFilter;
+      const mst = !this.examStatusFilter || this.computeStatus(e) === this.examStatusFilter;
       return ms && mst;
     });
   }
@@ -180,6 +180,12 @@ export class AdminExamsComponent implements OnInit {
   }
 
   gradeCount(examId: number): number { return this.grades.filter((g: any) => g.examId === examId).length; }
+
+  computeStatus(e: any): string {
+    if (e.deadline) return new Date() > new Date(e.deadline) ? 'COMPLETED' : 'SCHEDULED';
+    if (e.date) return new Date() > new Date(e.date) ? 'COMPLETED' : 'SCHEDULED';
+    return e.status;
+  }
 
   gradeBadge(grade: string): string {
     const map: Record<string, string> = { A: 'bg-success', B: 'bg-primary', C: 'bg-warning text-dark', D: 'bg-warning text-dark', F: 'bg-danger' };

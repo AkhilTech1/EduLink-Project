@@ -116,6 +116,10 @@ import { AuthService } from '../../services/auth.service';
                   <option value="">Select student</option>
                   <option *ngFor="let s of myStudents" [value]="s.studentId">{{ s.name }}</option>
                 </select>
+                <div class="mt-2 small p-2 rounded" *ngIf="isAlreadyMarked()"
+                  style="background:rgba(239,68,68,0.1);color:#ef4444">
+                  ⚠️ Attendance already marked for this student on the selected date.
+                </div>
               </div>
               <div class="mb-3">
                 <label>Class</label>
@@ -306,7 +310,21 @@ export class AdminAttendanceComponent implements OnInit {
     if (s?.classId) this.form.classId = s.classId;
   }
 
+  isAlreadyMarked(): boolean {
+    if (!this.form.studentId || !this.form.date) return false;
+    return this.attendance.some(a => a.studentId == this.form.studentId && a.date === this.form.date);
+  }
+
   save(): void {
+    if (!this.editId) {
+      const alreadyMarked = this.attendance.some(
+        a => a.studentId == this.form.studentId && a.date === this.form.date
+      );
+      if (alreadyMarked) {
+        this.toast.show('Attendance already marked for this student on the selected date', 'warning');
+        return;
+      }
+    }
     const obs = this.editId ? this.api.updateAttendance(this.editId, this.form) : this.api.createAttendance(this.form);
     obs.subscribe({
       next: () => { this.toast.show('Attendance saved', 'success'); this.showModal = false; this.load(); },

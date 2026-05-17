@@ -124,7 +124,7 @@ import { ToastService } from '../../services/toast.service';
                   <div *ngIf="!selectedFile">
                     <div style="font-size:2.5rem">📁</div>
                     <div class="fw-semibold mt-2" style="color:var(--text-primary)">Click or drag file here</div>
-                    <div class="text-muted small mt-1">PDF, DOC, PPT, MP4, MP3, Images (max 10MB)</div>
+                    <div class="text-muted small mt-1">PDF, DOC, PPT, MP4, MP3, Images (max 50MB)</div>
                   </div>
 
                   <div *ngIf="selectedFile" class="d-flex align-items-center gap-3 justify-content-center">
@@ -239,7 +239,7 @@ export class TeacherMaterialsComponent implements OnInit {
 
   processFile(file: File): void {
     this.fileError = '';
-    if (file.size > 10 * 1024 * 1024) { this.fileError = 'File size must be under 10MB'; return; }
+    if (file.size > 50 * 1024 * 1024) { this.fileError = 'File size must be under 50MB'; return; }
     this.selectedFile = file;
     // auto-fill title from filename if empty
     if (!this.form.title) this.form.title = file.name.replace(/\.[^/.]+$/, '');
@@ -257,7 +257,6 @@ export class TeacherMaterialsComponent implements OnInit {
     if (!this.form.courseId || !this.form.title) { this.toast.show('Please fill required fields', 'error'); return; }
 
     if (this.editId) {
-      // edit — no new file required
       this.api.updateMaterial(this.editId, this.form).subscribe({
         next: () => { this.toast.show('Material updated', 'success'); this.showModal = false; this.ngOnInit(); },
         error: () => this.toast.show('Failed to update', 'error')
@@ -267,62 +266,61 @@ export class TeacherMaterialsComponent implements OnInit {
 
     if (!this.selectedFile) { this.toast.show('Please select a file to upload', 'error'); return; }
 
-    // convert file to base64 and save
     this.uploading = true;
     this.uploadProgress = 0;
     this.cdr.detectChanges();
 
-    const reader = new FileReader();
-    // simulate progress
+    // Step 1: upload file as multipart, get back filename
+    const formData = new FormData();
+    formData.append('file', this.selectedFile);
+
     const progressInterval = setInterval(() => {
-      if (this.uploadProgress < 85) { this.uploadProgress += 15; this.cdr.detectChanges(); }
-    }, 100);
+      if (this.uploadProgress < 80) { this.uploadProgress += 10; this.cdr.detectChanges(); }
+    }, 150);
 
-    reader.onload = () => {
-      clearInterval(progressInterval);
-      this.uploadProgress = 95;
-      this.cdr.detectChanges();
+    this.api.uploadMaterialFile(formData).subscribe({
+      next: (res: any) => {
+        clearInterval(progressInterval);
+        this.uploadProgress = 90;
+        this.cdr.detectChanges();
 
-      const dataUrl = reader.result as string;
-      const mimeType = dataUrl.split(';')[0].replace('data:', '');
-      const base64 = dataUrl.split(',')[1]; // raw base64 only, no data URL prefix
-      const payload = {
-        courseId: +this.form.courseId,
-        title: this.form.title,
-        fileUri: base64,
-        mimeType: mimeType,
-        uploadedDate: new Date().toISOString().split('T')[0],
-        status: this.form.status || 'ACTIVE'
-      };
+        // Step 2: save material metadata with the returned filename as fileUri
+        const payload = {
+          courseId: +this.form.courseId,
+          title: this.form.title,
+          fileUri: res.fileUri,
+          mimeType: res.mimeType,
+          uploadedDate: new Date().toISOString().split('T')[0],
+          status: this.form.status || 'ACTIVE'
+        };
 
-      this.api.createMaterial(payload).subscribe({
-        next: () => {
-          this.uploadProgress = 100;
-          this.cdr.detectChanges();
-          setTimeout(() => {
-            this.toast.show('Material uploaded successfully', 'success');
+        this.api.createMaterial(payload).subscribe({
+          next: () => {
+            this.uploadProgress = 100;
+            this.cdr.detectChanges();
+            setTimeout(() => {
+              this.toast.show('Material uploaded successfully', 'success');
+              this.uploading = false;
+              this.showModal = false;
+              this.ngOnInit();
+            }, 300);
+          },
+          error: () => {
             this.uploading = false;
-            this.showModal = false;
-            this.ngOnInit();
-          }, 300);
-        },
-        error: (err) => {
-          this.uploading = false;
-          this.uploadProgress = 0;
-          this.toast.show(err?.error?.message || err?.message || 'Upload failed', 'error');
-          this.cdr.detectChanges();
-        }
-      });
-    };
-
-    reader.onerror = () => {
-      clearInterval(progressInterval);
-      this.uploading = false;
-      this.toast.show('Failed to read file', 'error');
-      this.cdr.detectChanges();
-    };
-
-    reader.readAsDataURL(this.selectedFile);
+            this.uploadProgress = 0;
+            this.toast.show('Failed to save material', 'error');
+            this.cdr.detectChanges();
+          }
+        });
+      },
+      error: (err: any) => {
+        clearInterval(progressInterval);
+        this.uploading = false;
+        this.uploadProgress = 0;
+        this.toast.show(err?.error?.message || 'File upload failed', 'error');
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   edit(m: any): void {
@@ -341,13 +339,8 @@ export class TeacherMaterialsComponent implements OnInit {
 
   openFile(m: any): void {
     if (!m.fileUri) return;
-    const mime = m.mimeType || 'application/octet-stream';
-    const byteChars = atob(m.fileUri);
-    const byteArr = new Uint8Array(byteChars.length);
-    for (let i = 0; i < byteChars.length; i++) byteArr[i] = byteChars.charCodeAt(i);
-    const blob = new Blob([byteArr], { type: mime });
-    const url = URL.createObjectURL(blob);
-    window.open(url, '_blank');
+    // fileUri is now a filename — serve via backend endpoint
+    window.open(`/api/materials/file/${m.fileUri}`, '_blank');
   }
 
   isBase64(uri: string): boolean { return !!uri && !uri.startsWith('http'); }

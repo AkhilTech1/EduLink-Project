@@ -31,7 +31,6 @@ import { ToastService } from '../../services/toast.service';
             <div class="d-flex justify-content-between align-items-start mb-3">
               <div>
                 <div class="fw-bold" style="color:var(--text-primary)">{{ courseName(cl.courseId) }}</div>
-                <div class="text-muted small">Class #{{ cl.classId }}</div>
               </div>
               <span class="badge" [ngClass]="cl.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ cl.status }}</span>
             </div>
@@ -53,9 +52,6 @@ import { ToastService } from '../../services/toast.service';
               </div>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="badge" [ngClass]="cl.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ cl.status }}</span>
-            </div>
           </div>
         </div>
       </div>

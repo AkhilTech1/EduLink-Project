@@ -22,6 +22,7 @@ export class ApiService {
   createMaterial(d: any): Observable<any> { return this.http.post<any>('/api/materials', d); }
   updateMaterial(id: number, d: any): Observable<any> { return this.http.put<any>(`/api/materials/${id}`, d); }
   deleteMaterial(id: number): Observable<any> { return this.http.delete(`/api/materials/${id}`); }
+  uploadMaterialFile(formData: FormData): Observable<any> { return this.http.post<any>('/api/materials/upload', formData); }
 
   getAssignments(): Observable<any[]> { return this.http.get<any[]>('/api/assignments'); }
   createAssignment(d: any): Observable<any> { return this.http.post<any>('/api/assignments', d); }

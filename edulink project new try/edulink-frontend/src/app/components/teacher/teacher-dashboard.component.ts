@@ -170,7 +170,6 @@ export class TeacherDashboardComponent implements OnInit {
     { path: '/teacher/students', label: 'My Students', desc: 'View enrolled students', icon: '🎒' },
     { path: '/teacher/performance', label: 'Performance', desc: 'Track student progress', icon: '📈' },
     { path: '/teacher/schedule', label: 'Schedule', desc: 'Manage class schedules', icon: '🗓️' },
-    { path: '/teacher/grades', label: 'Grades', desc: 'Enter & manage grades', icon: '🏆' },
   ];
 
   constructor(private auth: AuthService, private api: ApiService, private cdr: ChangeDetectorRef) {}
@@ -209,7 +208,12 @@ export class TeacherDashboardComponent implements OnInit {
         this.totalAttendance = att.length;
         this.attendancePct = att.length ? Math.round((this.presentCount / att.length) * 100) : 0;
 
-        const grades = d.grades as any[];
+        const myExamIds = new Set(
+          (d.exams as any[])
+            .filter(e => enrolledCourseIds.includes(e.courseId))
+            .map((e: any) => e.examId)
+        );
+        const grades = (d.grades as any[]).filter(g => myExamIds.has(g.examId));
         this.passCount = grades.filter(g => g.status === 'PASS').length;
         this.failCount = grades.filter(g => g.status === 'FAIL').length;
         this.avgScore = grades.length ? Math.round(grades.reduce((a, g) => a + g.score, 0) / grades.length) : 0;

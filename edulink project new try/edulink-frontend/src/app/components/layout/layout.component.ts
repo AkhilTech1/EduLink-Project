@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { catchError, of } from 'rxjs';
@@ -137,12 +137,13 @@ export class LayoutComponent implements OnInit {
       { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
       { path: '/admin/approvals', label: 'Approvals', icon: '✅' },
       { path: '/admin/students', label: 'Students', icon: '🎒' },
-      { path: '/admin/staff', label: 'Staff', icon: '👨‍💼' },
+      { path: '/admin/staff', label: 'Staff', icon: '👨💼' },
       { path: '/admin/users', label: 'All Users', icon: '👥' },
       { path: '/admin/courses', label: 'Courses & Classes', icon: '📚' },
       { path: '/admin/attendance', label: 'Attendance', icon: '📋' },
       { path: '/admin/exams', label: 'Exams & Grades', icon: '📝' },
       { path: '/admin/reports', label: 'Reports', icon: '📊' },
+      { path: '/admin/notifications', label: 'Notifications', icon: '🔔' },
     ],
     STUDENT: [
       { path: '/student/dashboard', label: 'Dashboard', icon: '🏠' },
@@ -150,7 +151,10 @@ export class LayoutComponent implements OnInit {
       { path: '/student/courses', label: 'My Courses', icon: '📚' },
       { path: '/student/learning', label: 'Learning', icon: '📖' },
       { path: '/student/exams', label: 'Exams', icon: '📝' },
+      { path: '/student/grades', label: 'Grades', icon: '🏆' },
       { path: '/student/attendance', label: 'Attendance', icon: '📋' },
+      { path: '/student/performance', label: 'Performance', icon: '📈' },
+      { path: '/student/notifications', label: 'Notifications', icon: '🔔' },
       { path: '/student/reports', label: 'Reports', icon: '📊' },
       { path: '/student/calendar', label: 'Calendar', icon: '📅' },
     ],
@@ -158,7 +162,7 @@ export class LayoutComponent implements OnInit {
       { path: '/teacher/dashboard', label: 'Dashboard', icon: '🏠' },
       { path: '/teacher/courses', label: 'My Courses', icon: '📚' },
       { path: '/teacher/students', label: 'My Students', icon: '🎒' },
-      { path: '/teacher/schedule', label: 'Schedule', icon: '🗓️' },
+      { path: '/teacher/schedule', label: 'Schedule', icon: '🗓' },
       { path: '/teacher/materials', label: 'Materials', icon: '📄' },
       { path: '/teacher/exams', label: 'Exams & Grades', icon: '📝' },
       { path: '/teacher/attendance', label: 'Attendance', icon: '📋' },
