@@ -170,6 +170,8 @@ export class LayoutComponent implements OnInit {
     ],
     BOARD: [
       { path: '/dashboard', label: 'Dashboard', icon: '🏠' },
+      { path: '/admin/students', label: 'Students', icon: '🎒' },
+      { path: '/admin/staff', label: 'Teachers', icon: '💼' },
       { path: '/admin/courses', label: 'Courses', icon: '📚' },
       { path: '/admin/reports', label: 'Reports', icon: '📊' },
     ]

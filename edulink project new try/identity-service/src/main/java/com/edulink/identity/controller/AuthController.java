@@ -94,7 +94,7 @@ public class AuthController {
     }
 
     @GetMapping("/students/all")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'BOARD')")
     public ResponseEntity<List<UserDto.Response>> getAllStudents() {
         return ResponseEntity.ok(authService.getAllStudents());
     }

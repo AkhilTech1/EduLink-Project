@@ -17,7 +17,7 @@ import { catchError, of } from 'rxjs';
           <h2 class="section-title mb-1">Course & Class Management</h2>
           <p class="text-muted small mb-0">{{ courses.length }} courses · {{ classes.length }} classes</p>
         </div>
-        <div class="d-flex gap-2" *ngIf="role!=='TEACHER'">
+        <div class="d-flex gap-2" *ngIf="role!=='TEACHER' && role!=='BOARD'">
           <button class="btn btn-outline-secondary btn-sm" (click)="activeTab='classes';showClassModal=true;resetClassForm()">+ Add Class</button>
           <button class="btn-accent" *ngIf="canEdit" (click)="activeTab='courses';showModal=true;resetForm()">+ Add Course</button>
         </div>

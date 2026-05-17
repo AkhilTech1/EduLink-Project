@@ -13,13 +13,13 @@ import { ToastService } from '../../services/toast.service';
     <div>
       <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h2 class="section-title mb-1">Staff Management</h2>
-          <p class="text-muted small mb-0">Manage teachers, board officers</p>
+          <h2 class="section-title mb-1">{{ role === 'BOARD' ? 'Teachers' : 'Staff Management' }}</h2>
+          <p class="text-muted small mb-0">{{ role === 'BOARD' ? 'View all teachers' : 'Manage teachers, board officers' }}</p>
         </div>
-        <button class="btn-accent" (click)="showModal=true;resetForm()">+ Add Staff</button>
+        <button class="btn-accent" *ngIf="role === 'ADMIN'" (click)="showModal=true;resetForm()">+ Add Staff</button>
       </div>
 
-      <div class="row g-3 mb-4">
+      <div class="row g-3 mb-4" *ngIf="role === 'ADMIN'">
         <div class="col-6 col-md-3" *ngFor="let r of roleSummary">
           <div class="stat-card text-center">
             <div class="stat-icon mx-auto mb-2" [style.background]="r.color+'22'" style="width:44px;height:44px;font-size:1.2rem">{{ r.icon }}</div>
@@ -35,7 +35,7 @@ import { ToastService } from '../../services/toast.service';
             <input class="form-control" [(ngModel)]="search" placeholder="🔍 Search by name or email..." (input)="applyFilter()">
           </div>
           <div class="col-md-3">
-            <select class="form-select" [(ngModel)]="filterRole" (change)="applyFilter()">
+            <select class="form-select" [(ngModel)]="filterRole" (change)="applyFilter()" *ngIf="role === 'ADMIN'">
               <option value="">All Roles</option>
               <option value="TEACHER">Teacher</option>
               <option value="BOARD">Board Officer</option>
@@ -54,7 +54,7 @@ import { ToastService } from '../../services/toast.service';
       <div class="table-wrapper">
         <table class="table table-hover mb-0">
           <thead>
-            <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+            <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th *ngIf="role === 'ADMIN'">Actions</th></tr>
           </thead>
           <tbody>
             <tr *ngFor="let u of filtered">
@@ -71,20 +71,19 @@ import { ToastService } from '../../services/toast.service';
               <td>{{ u.phone }}</td>
               <td><span class="badge" [ngClass]="roleBadge(u.role)">{{ u.role }}</span></td>
               <td>
-                <div class="form-check form-switch mb-0">
+                <div class="form-check form-switch mb-0" *ngIf="role === 'ADMIN'">
                   <input class="form-check-input" type="checkbox" [checked]="u.status==='ACTIVE'" (change)="toggleStatus(u)">
-                  <label class="form-check-label small" [style.color]="u.status==='ACTIVE'?'#10b981':'#adb5bd'">
-                    {{ u.status }}
-                  </label>
+                  <label class="form-check-label small" [style.color]="u.status==='ACTIVE'?'#10b981':'#adb5bd'">{{ u.status }}</label>
                 </div>
+                <span *ngIf="role === 'BOARD'" class="badge" [ngClass]="u.status==='ACTIVE'?'bg-success':'bg-secondary'">{{ u.status }}</span>
               </td>
-              <td>
+              <td *ngIf="role === 'ADMIN'">
                 <button class="btn btn-sm btn-outline-primary me-1" (click)="edit(u)">Edit</button>
                 <button class="btn btn-sm btn-outline-danger" (click)="confirmDelete(u)">Delete</button>
               </td>
             </tr>
             <tr *ngIf="filtered.length===0">
-              <td colspan="6" class="text-center text-muted py-4">No staff found</td>
+              <td [colSpan]="role === 'BOARD' ? 5 : 6" class="text-center text-muted py-4">No staff found</td>
             </tr>
           </tbody>
         </table>
@@ -159,6 +158,7 @@ import { ToastService } from '../../services/toast.service';
   `
 })
 export class AdminStaffComponent implements OnInit {
+  role = '';
   staff: any[] = [];
   filtered: any[] = [];
   search = '';
@@ -172,11 +172,16 @@ export class AdminStaffComponent implements OnInit {
 
   constructor(private auth: AuthService, private toast: ToastService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.role = this.auth.getRole() || '';
+    this.load();
+  }
 
   load(): void {
     this.auth.getUsers().pipe(catchError(() => of([]))).subscribe(users => {
-      this.staff = (users as any[]).filter(u => u.role !== 'ADMIN' && u.role !== 'STUDENT');
+      const all = (users as any[]).filter(u => u.role !== 'ADMIN' && u.role !== 'STUDENT');
+      // BOARD sees only teachers; ADMIN sees all staff
+      this.staff = this.role === 'BOARD' ? all.filter(u => u.role === 'TEACHER') : all;
       this.buildSummary();
       this.applyFilter();
       this.cdr.detectChanges();

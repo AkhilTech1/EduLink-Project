@@ -198,8 +198,26 @@ export class AdminStudentsComponent implements OnInit {
   }
 
   load(): void {
-    this.auth.getAllStudentRegistrations().subscribe(registered => {
-      this.api.getStudents().subscribe(academic => {
+    this.auth.getAllStudentRegistrations().pipe(catchError(() => of([]))).subscribe(registered => {
+      this.api.getStudents().pipe(catchError(() => of([]))).subscribe(academic => {
+
+        // If registered is empty (e.g. BOARD role fallback), build from student-service data
+        if ((registered as any[]).length === 0 && (academic as any[]).length > 0) {
+          this.allStudents = (academic as any[]).map((a: any) => ({
+            ...a,
+            studentId: a.studentId,
+            name: a.name,
+            email: a.contactInfo || '—',
+            phone: a.contactInfo || '—',
+            enrollmentDate: a.enrollmentDate,
+            registrationStatus: a.status || 'ACTIVE',
+            gradeLevel: a.gradeLevel || null
+          }));
+          this.pendingCount = 0;
+          this.applyFilter();
+          this.cdr.detectChanges();
+          return;
+        }
 
         // identity is the single source of truth — one entry per student
         // just enrich each registration with studentId from student-service

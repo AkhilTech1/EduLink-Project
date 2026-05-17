@@ -35,7 +35,7 @@ import { ApiService } from '../../services/api.service';
 
       <!-- Course + Pending -->
       <div class="row g-3 mb-4">
-        <div class="col-lg-8">
+        <div [class]="role === 'BOARD' ? 'col-lg-12' : 'col-lg-8'">
           <div class="card p-4 h-100">
             <h6 class="fw-bold mb-3">📊 Course Enrollment Overview</h6>
 
@@ -57,7 +57,7 @@ import { ApiService } from '../../services/api.service';
         </div>
 
         <!-- Pending Approvals -->
-        <div class="col-lg-4">
+        <div class="col-lg-4" *ngIf="role !== 'BOARD'">
           <div class="card p-4 h-100">
             <h6 class="fw-bold mb-3">⏳ Pending Approvals</h6>
 
@@ -147,6 +147,7 @@ import { ApiService } from '../../services/api.service';
 export class AdminDashboardComponent implements OnInit {
 
   displayName = '';
+  role = '';
   today = new Date().toLocaleDateString();
 
   kpis: any[] = [];
@@ -166,6 +167,7 @@ export class AdminDashboardComponent implements OnInit {
   constructor(private auth: AuthService, private api: ApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
+    this.role = this.auth.getRole() || '';
     this.auth.getMe().subscribe(u => {
       this.displayName = u?.name || '';
       this.cdr.detectChanges();
@@ -207,7 +209,7 @@ export class AdminDashboardComponent implements OnInit {
         { label: 'Teachers', value: teachers, icon: '👨‍🏫', color: '#10b981', sub: 'Staff', path: '/admin/users' },
         { label: 'Courses', value: d.courses.length, icon: '📚', color: '#f59e0b', sub: `${activeCourses} active`, path: '/admin/courses' },
         { label: 'Pending Approvals', value: this.pendingStudents.length, icon: '⏳', color: '#ef4444', sub: 'Awaiting review', path: '/admin/approvals' }
-      ];
+      ].filter(k => !(this.role === 'BOARD' && k.label === 'Pending Approvals'));
 
       this.courses = d.courses;
 

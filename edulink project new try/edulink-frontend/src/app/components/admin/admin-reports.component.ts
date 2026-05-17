@@ -131,7 +131,7 @@ import { AuthService } from '../../services/auth.service';
         <select class="form-select form-select-sm" style="width:150px" [(ngModel)]="filterScope" (change)="applyFilter()">
           <option value="">All Scopes</option>
           <option value="STUDENT">Student</option>
-          <option value="COURSE">Course</option>
+          <option value="COURSE" *ngIf="role !== 'BOARD'">Course</option>
           <option value="PERFORMANCE">Performance</option>
         </select>
       </div>
@@ -155,6 +155,7 @@ import { AuthService } from '../../services/auth.service';
   `
 })
 export class AdminReportsComponent implements OnInit {
+  role = '';
   reports: any[] = [];
   filteredReports: any[] = [];
   filterScope = '';
@@ -164,7 +165,10 @@ export class AdminReportsComponent implements OnInit {
 
   constructor(private api: ApiService, private toast: ToastService, private auth: AuthService, private cdr: ChangeDetectorRef) {}
 
-  ngOnInit(): void { this.load(); }
+  ngOnInit(): void {
+    this.role = this.auth.getRole() || '';
+    this.load();
+  }
 
   load(): void {
     forkJoin({
@@ -175,8 +179,10 @@ export class AdminReportsComponent implements OnInit {
       grades: this.api.getGrades().pipe(catchError(() => of([]))),
       registrations: this.auth.getAllStudentRegistrations().pipe(catchError(() => of([]))),
     }).subscribe(d => {
-      this.reports = d.reports;
-      this.filteredReports = d.reports;
+      this.reports = this.role === 'BOARD'
+        ? (d.reports as any[]).filter((r: any) => r.scope !== 'COURSE')
+        : d.reports;
+      this.filteredReports = this.reports;
 
       const students = d.students as any[];
       const attendance = d.attendance as any[];
@@ -184,10 +190,10 @@ export class AdminReportsComponent implements OnInit {
       const courses = d.courses as any[];
       const registrations = d.registrations as any[];
 
-      const active = students.filter(s => s.status === 'ACTIVE').length;
-      const inactive = students.filter(s => s.status === 'INACTIVE').length;
-      const present = attendance.filter(a => a.status === 'PRESENT').length;
-      const passed = grades.filter(g => g.status === 'PASS').length;
+      const active = students.filter((s: any) => s.status === 'ACTIVE').length;
+      const inactive = students.filter((s: any) => s.status === 'INACTIVE').length;
+      const present = attendance.filter((a: any) => a.status === 'PRESENT').length;
+      const passed = grades.filter((g: any) => g.grade && g.grade !== 'F').length;
       const activeCourses = courses.filter(c => c.status === 'ACTIVE').length;
 
       this.analytics = {
@@ -195,7 +201,7 @@ export class AdminReportsComponent implements OnInit {
         activeStudents: active,
         attendanceRate: attendance.length ? Math.round((present / attendance.length) * 100) : 0,
         passRate: grades.length ? Math.round((passed / grades.length) * 100) : 0,
-        avgScore: grades.length ? Math.round(grades.reduce((a, g) => a + g.score, 0) / grades.length) : 0,
+        avgScore: grades.length ? Math.round(grades.reduce((a: number, g: any) => a + (g.score || 0), 0) / grades.length) : 0,
         activeCourses,
         totalCourses: courses.length
       };
@@ -207,16 +213,19 @@ export class AdminReportsComponent implements OnInit {
       ];
 
       // Build grade-level attendance report
-      // Map studentId -> gradeLevel using registrations (which have gradeLevel)
+      // Map studentId -> gradeLevel: use student-service gradeLevel as base, enrich with registrations
       const studentGradeMap: Record<number, string> = {};
+      students.forEach((s: any) => {
+        if (s.studentId && s.gradeLevel) studentGradeMap[s.studentId] = s.gradeLevel;
+      });
       registrations.forEach((r: any) => {
-        const match = students.find(s => s.name?.toLowerCase() === r.name?.toLowerCase() || s.contactInfo === r.phone);
+        const match = students.find((s: any) => s.name?.toLowerCase() === r.name?.toLowerCase() || s.contactInfo === r.phone);
         if (match && r.gradeLevel) studentGradeMap[match.studentId] = r.gradeLevel;
       });
 
       // Group attendance records by grade
       const gradeMap: Record<string, { studentIds: Set<number>; present: number; absent: number; late: number }> = {};
-      attendance.forEach(a => {
+      attendance.forEach((a: any) => {
         const grade = studentGradeMap[a.studentId];
         if (!grade) return;
         if (!gradeMap[grade]) gradeMap[grade] = { studentIds: new Set(), present: 0, absent: 0, late: 0 };
@@ -226,13 +235,20 @@ export class AdminReportsComponent implements OnInit {
         else if (a.status === 'LATE') gradeMap[grade].late++;
       });
 
-      // Also count total students per grade from registrations (ACTIVE only)
+      // Count total students per grade from registrations if available, else from student-service
       const gradeTotalMap: Record<string, Set<number>> = {};
-      registrations.filter((r: any) => r.status === 'ACTIVE' && r.gradeLevel).forEach((r: any) => {
-        if (!gradeTotalMap[r.gradeLevel]) gradeTotalMap[r.gradeLevel] = new Set();
-        const match = students.find(s => s.name?.toLowerCase() === r.name?.toLowerCase() || s.contactInfo === r.phone);
-        if (match) gradeTotalMap[r.gradeLevel].add(match.studentId);
-      });
+      if (registrations.length > 0) {
+        registrations.filter((r: any) => r.status === 'ACTIVE' && r.gradeLevel).forEach((r: any) => {
+          if (!gradeTotalMap[r.gradeLevel]) gradeTotalMap[r.gradeLevel] = new Set();
+          const match = students.find((s: any) => s.name?.toLowerCase() === r.name?.toLowerCase() || s.contactInfo === r.phone);
+          if (match) gradeTotalMap[r.gradeLevel].add(match.studentId);
+        });
+      } else {
+        students.filter((s: any) => s.status === 'ACTIVE' && s.gradeLevel).forEach((s: any) => {
+          if (!gradeTotalMap[s.gradeLevel]) gradeTotalMap[s.gradeLevel] = new Set();
+          gradeTotalMap[s.gradeLevel].add(s.studentId);
+        });
+      }
 
       const allGrades = new Set([...Object.keys(gradeMap), ...Object.keys(gradeTotalMap)]);
       this.gradeAttendance = [...allGrades].sort().map(grade => {

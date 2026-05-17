@@ -5,37 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8b559b03-f12c-4a1f-85c1-7f4b02d3a0bf" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/amazonq.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/amazonq.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/alter_file_uri.sql" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/alter_file_uri.sql" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/attendance-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/attendance-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/attendance-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/attendance-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/course-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/course-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/course-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/course-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/app.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-attendance.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-attendance.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-exams.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-exams.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-courses.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-courses.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-dashboard.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-dashboard.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-reports.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-reports.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-staff.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-staff.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-students.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/admin/admin-students.component.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/layout/layout.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/layout/layout.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-dashboard.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-dashboard.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-materials.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-materials.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-performance.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-performance.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-schedule.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/components/teacher/teacher-schedule.component.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/api.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/edulink-frontend/src/app/services/api.service.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/exam-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/controller/LearningController.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/java/com/edulink/learning/controller/LearningController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/controller/LearningController.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/learning-service/target/classes/com/edulink/learning/controller/LearningController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/notification-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/notification-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/notification-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/notification-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/reporting-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/reporting-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/reporting-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/reporting-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/com/edulink/student/controller/StudentController.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/student-service/target/classes/com/edulink/student/controller/StudentController.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/src/main/java/com/edulink/identity/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/controller/AuthController.class" beforeDir="false" afterPath="$PROJECT_DIR$/edulink project new try/identity-service/target/classes/com/edulink/identity/controller/AuthController.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,10 +71,11 @@
     "last_opened_file_path": "C:/Users/2478105/EduLink",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0"
+    "project.structure.side.proportion": "0.0",
+    "settings.editor.selected.configurable": "vcs.Git"
   }
 }]]></component>
-  <component name="RunManager" selected="Spring Boot.LearningServiceApplication">
+  <component name="RunManager" selected="Spring Boot.IdentityServiceApplication">
     <configuration name="Service" type="CompoundRunConfigurationType">
       <toRun name="AttendanceServiceApplication" type="SpringBootApplicationConfigurationType" />
       <toRun name="CourseServiceApplication" type="SpringBootApplicationConfigurationType" />
@@ -284,6 +263,17 @@
       <updated>1778824180437</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>
