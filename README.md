@@ -1,1 +1,1 @@
-# EduLink
+EduLink is a full-stack education management system built with Angular and Spring Boot Microservices. It provides role-based access for Admins, Teachers, and Students to manage courses, attendance, exams, and performance. The system ensures centralized academic management with secure authentication and scalable architecture.# EduLink
