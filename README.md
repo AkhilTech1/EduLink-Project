@@ -160,7 +160,7 @@ OU open localhost:4200
 - MySQL 8.x
 - Maven 3.8+
 
-CREATE DATABASE edulink;
+
 ### 2. Start Backend Services (in this order) ###
 # 1. Start Eureka Server
 cd eureka-server
