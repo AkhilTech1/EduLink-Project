@@ -163,6 +163,7 @@ OU open localhost:4200
 ### 1. Database Setup
 ```sql
 CREATE DATABASE edulink;
+### 2. Start Backend Services (in this order) ###
 # 1. Start Eureka Server
 cd eureka-server
 mvn spring-boot:run
