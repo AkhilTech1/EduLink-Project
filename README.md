@@ -179,10 +179,11 @@ cd exam-service     && mvn spring-boot:run
 cd learning-service && mvn spring-boot:run
 cd notification-service && mvn spring-boot:run
 cd reporting-service && mvn spring-boot:run
-**Front-end:**
+3. Start Frontend
 cd edulink-frontend
 npm install
 ng serve
+
 Now you can see UI on http://localhost:4200
 
    
